@@ -280,7 +280,6 @@ void ForwardRenderer::passBlit()
         else{
             gl->glBindTexture(GL_TEXTURE_2D, resourceManager->texBlack->textureId());
         }
-        //TODO
 
         resourceManager->quad->submeshes[0]->draw();
     }

@@ -30,5 +30,5 @@ out vec4 outColor;
 
 void main(void)
 {
-    outColor.rgb = albedo.rgb;// * texture(albedoTexture, vTexCoords).rgb;
+    outColor.rgb = albedo.rgb * texture(albedoTexture, vTexCoords).rgb;
 }

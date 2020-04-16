@@ -124,6 +124,20 @@ bool Interaction::navigate()
                                         0.0f,
                                         -sinf(qDegreesToRadians(yaw))) * a * t;
     }
+    if (input->keys[Qt::Key_Q] == KeyState::Pressed) // Front
+    {
+        accelerating = true;
+        speedVector += QVector3D(0.0f,
+                1.0f,
+                0.0f) * a * t;
+    }
+    if (input->keys[Qt::Key_E] == KeyState::Pressed) // Front
+    {
+        accelerating = true;
+        speedVector += QVector3D(0.0f,
+                -1.0f,
+                0.0f) * a * t;
+    }
 
     if (!accelerating) {
         speedVector *= 0.9;
