@@ -53,6 +53,7 @@ ForwardRenderer::ForwardRenderer() :
     // List of textures
     addTexture("Final render");
     addTexture("White");
+    addTexture("Black");
 }
 
 ForwardRenderer::~ForwardRenderer()
@@ -272,9 +273,14 @@ void ForwardRenderer::passBlit()
 
         if (shownTexture() == "Final render") {
             gl->glBindTexture(GL_TEXTURE_2D, fboColor);
-        } else {
+        }
+        else if(shownTexture() == "White") {
             gl->glBindTexture(GL_TEXTURE_2D, resourceManager->texWhite->textureId());
         }
+        else{
+            gl->glBindTexture(GL_TEXTURE_2D, resourceManager->texBlack->textureId());
+        }
+        //TODO
 
         resourceManager->quad->submeshes[0]->draw();
     }
