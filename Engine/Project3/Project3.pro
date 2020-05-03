@@ -18,6 +18,7 @@ SOURCES += \
     src/input/input.cpp \
     src/input/interaction.cpp \
     src/input/selection.cpp \
+    src/rendering/deferredrenderer.cpp \
     src/rendering/gl.cpp \
     src/rendering/forwardrenderer.cpp \
     src/rendering/framebufferobject.cpp \
@@ -57,6 +58,7 @@ HEADERS += \
     src/input/input.h \
     src/input/interaction.h \
     src/input/selection.h \
+    src/rendering/deferredrenderer.h \
     src/rendering/gl.h \
     src/rendering/miscsettings.h \
     src/rendering/renderer.h \
@@ -110,6 +112,8 @@ RESOURCES += \
 DISTFILES += \
     res/shaders/blit.frag \
     res/shaders/blit.vert \
+    res/shaders/deferred_shading.frag \
+    res/shaders/deferred_shading.vert \
     res/shaders/forward_shading.frag \
     res/shaders/forward_shading.vert \
     res/shaders/texture_view.frag \
