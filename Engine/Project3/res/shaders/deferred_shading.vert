@@ -9,10 +9,18 @@ layout(location=4) in vec3 bitangent;
 uniform mat4 projectionMatrix;
 uniform mat4 worldViewMatrix;
 
+uniform mat4 viewMatrix;
+
+out vec4 vPosition;
+out vec4 vNormal;
 out vec2 vTexCoords;
 
 void main(void)
 {
+    vPosition = projectionMatrix * viewMatrix* vec4(position, 1);
+    vNormal =  projectionMatrix * viewMatrix * vec4(normal, 1);
     vTexCoords = texCoords;
+
     gl_Position = projectionMatrix * worldViewMatrix * vec4(position, 1);
+
 }

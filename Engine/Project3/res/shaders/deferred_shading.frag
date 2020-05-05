@@ -24,6 +24,8 @@ uniform vec3 lightDirection[MAX_LIGHTS];
 uniform vec3 lightColor[MAX_LIGHTS];
 uniform int lightCount;
 
+in vec4 vPosition;
+in vec4 vNormal;
 in vec2 vTexCoords;
 
 out vec4 outColor;
