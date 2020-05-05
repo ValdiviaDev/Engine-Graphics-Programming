@@ -3,6 +3,7 @@
 // Matrices
 uniform mat4 worldViewMatrix;
 uniform mat3 normalMatrix;
+uniform vec3 viewPos;
 
 // Material
 uniform vec4 albedo;
@@ -27,9 +28,27 @@ uniform int lightCount;
 in vec4 vPosition;
 in vec4 vNormal;
 in vec2 vTexCoords;
+in vec4 albedoSpecular;
 
 out vec4 outColor;
 
 void main(void){
-    outColor.rgb = albedo.xyz;
+
+    //Data from the G buffer
+    //TODO: Do we need to do this?
+
+    //Calculate lighting
+    vec3 lighting = albedoSpecular.rgb * 0.1;
+   // vec3 viewDir = normalize(viewPos - vPosition.xyz);
+
+    for(int i = 0; i < lightCount; ++i)
+    {
+      // Diffuse
+      vec3 lightDir = normalize(lightPosition[i] - vPosition.xyz);
+      vec3 diffuse = max(dot(vNormal.xyz, lightDir), 0.0) * albedoSpecular.rgb * lightColor[i];
+      lighting += diffuse;
+    }
+
+
+    outColor = vec4(lighting, 1.0);
 }

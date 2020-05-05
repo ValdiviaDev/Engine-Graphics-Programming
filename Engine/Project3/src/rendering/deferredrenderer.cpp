@@ -158,6 +158,7 @@ void DeferredRenderer::passMeshes(Camera *camera)
     {
         program.setUniformValue("viewMatrix", camera->viewMatrix);
         program.setUniformValue("projectionMatrix", camera->projectionMatrix);
+        program.setUniformValue("viewPos", camera->position);
 
         QVector<MeshRenderer*> meshRenderers;
 
@@ -223,6 +224,10 @@ void DeferredRenderer::passMeshes(Camera *camera)
                 }
             }
         }
+
+        //Pass the lights
+        sendLightsToProgram(program, camera->viewMatrix);
+
         program.release();
     }
 }

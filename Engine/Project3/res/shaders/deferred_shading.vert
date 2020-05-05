@@ -11,17 +11,26 @@ uniform mat4 worldViewMatrix;
 uniform mat4 worldMatrix;
 uniform mat4 viewMatrix;
 
+uniform sampler2D albedoTexture;
+uniform sampler2D specularTexture;
+
 out vec4 vPosition;
 out vec4 vNormal;
 out vec2 vTexCoords;
+out vec4 albedoSpecular;
 
 void main(void)
 {
     vPosition = worldViewMatrix * projectionMatrix * vec4(position, 1);
 
+    //TODO: Is this way of doing it ok? Should we normalize?
     //vNormal =  inverse(worldMatrix) * vec4(normal, 1);
     vNormal =  worldMatrix * vec4(normal, 1);
     vTexCoords = texCoords;
+
+    //TODO: Is this way of doing it ok?
+    albedoSpecular.rgb = texture(albedoTexture, texCoords).rgb;
+    albedoSpecular.a = texture(specularTexture, texCoords).r;
 
     gl_Position = projectionMatrix * worldViewMatrix * vec4(position, 1);
 
