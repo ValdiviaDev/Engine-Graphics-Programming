@@ -1,4 +1,4 @@
-#include "deferredrenderer.h"
+#include "Deferredrenderer.h"
 #include "miscsettings.h"
 #include "ecs/scene.h"
 #include "ecs/camera.h"
@@ -79,7 +79,6 @@ void DeferredRenderer::initialize()
     blitProgram->fragmentShaderFilename = "res/shaders/blit.frag";
     blitProgram->includeForSerialization = false;
 
-
     // Create FBO
 
     fbo = new FramebufferObject;
@@ -117,7 +116,6 @@ void DeferredRenderer::resize(int w, int h)
     gl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     gl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     gl->glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT24, w, h, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
-
 
     // Attach textures to the fbo
 
@@ -161,10 +159,7 @@ void DeferredRenderer::passMeshes(Camera *camera)
         program.setUniformValue("viewMatrix", camera->viewMatrix);
         program.setUniformValue("projectionMatrix", camera->projectionMatrix);
 
-        sendLightsToProgram(program, camera->viewMatrix);
-
         QVector<MeshRenderer*> meshRenderers;
-        QVector<LightSource*> lightSources;
 
         // Get components
         for (auto entity : scene->entities)
@@ -172,7 +167,6 @@ void DeferredRenderer::passMeshes(Camera *camera)
             if (entity->active)
             {
                 if (entity->meshRenderer != nullptr) { meshRenderers.push_back(entity->meshRenderer); }
-                if (entity->lightSource != nullptr) { lightSources.push_back(entity->lightSource); }
             }
         }
 
@@ -229,33 +223,6 @@ void DeferredRenderer::passMeshes(Camera *camera)
                 }
             }
         }
-
-        // Light spheres
-        if (miscSettings->renderLightSources)
-        {
-            for (auto lightSource : lightSources)
-            {
-                QMatrix4x4 worldMatrix = lightSource->entity->transform->matrix();
-                QMatrix4x4 scaleMatrix; scaleMatrix.scale(0.1f, 0.1f, 0.1f);
-                QMatrix4x4 worldViewMatrix = camera->viewMatrix * worldMatrix * scaleMatrix;
-                QMatrix3x3 normalMatrix = worldViewMatrix.normalMatrix();
-                program.setUniformValue("worldMatrix", worldMatrix);
-                program.setUniformValue("worldViewMatrix", worldViewMatrix);
-                program.setUniformValue("normalMatrix", normalMatrix);
-
-                for (auto submesh : resourceManager->sphere->submeshes)
-                {
-                    // Send the material to the shader
-                    Material *material = resourceManager->materialLight;
-                    program.setUniformValue("albedo", material->albedo);
-                    program.setUniformValue("emissive", material->emissive);
-                    program.setUniformValue("smoothness", material->smoothness);
-
-                    submesh->draw();
-                }
-            }
-        }
-
         program.release();
     }
 }
@@ -268,6 +235,7 @@ void DeferredRenderer::passBlit()
 
     if (program.bind())
     {
+
         program.setUniformValue("colorTexture", 0);
         gl->glActiveTexture(GL_TEXTURE0);
 
@@ -282,6 +250,7 @@ void DeferredRenderer::passBlit()
         }
 
         resourceManager->quad->submeshes[0]->draw();
+
     }
 
     gl->glEnable(GL_DEPTH_TEST);
