@@ -30,7 +30,6 @@ in vec2 vTexCoords;
 
 out vec4 outColor;
 
-void main(void)
-{
-    outColor.rgb = albedo.rgb * texture(albedoTexture, vTexCoords).rgb;
+void main(void){
+    outColor.rgb = albedo.xyz;
 }
