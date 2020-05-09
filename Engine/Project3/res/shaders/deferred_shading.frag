@@ -28,14 +28,20 @@ uniform int lightCount;
 in vec4 vPosition;
 in vec4 vNormal;
 in vec2 vTexCoords;
-in vec4 albedoSpecular;
 
-out vec4 outColor;
+layout(location=0) out vec4 outColor;
+layout(location=1) out vec4 outAlbedoSpecular;
+layout(location=2) out vec4 outPosition;
+layout(location=3) out vec4 outNormal;
 
 void main(void){
 
     //Data from the G buffer
     //TODO: Do we need to do this?
+
+    vec4 albedoSpecular = vec4(0.0);
+    albedoSpecular.rgb = texture(albedoTexture, vTexCoords).rgb;
+    albedoSpecular.a = texture(specularTexture, vTexCoords).r;
 
     //Calculate lighting
     vec3 lighting = albedoSpecular.rgb * 0.1;
@@ -51,4 +57,8 @@ void main(void){
 
 
     outColor = vec4(lighting, 1.0);
+    outPosition = vPosition;
+    outNormal = vNormal;
+    outAlbedoSpecular = albedoSpecular;
+
 }

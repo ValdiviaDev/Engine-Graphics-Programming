@@ -22,6 +22,9 @@ static void sendLightsToProgram(QOpenGLShaderProgram &program, const QMatrix4x4 
     QVector<QVector3D> lightPosition;
     QVector<QVector3D> lightDirection;
     QVector<QVector3D> lightColor;
+
+
+
     for (auto entity : scene->entities)
     {
         if (entity->active && entity->lightSource != nullptr)
@@ -46,6 +49,9 @@ static void sendLightsToProgram(QOpenGLShaderProgram &program, const QMatrix4x4 
 
 DeferredRenderer::DeferredRenderer() :
     fboColor(QOpenGLTexture::Target2D),
+    albedoColor(QOpenGLTexture::Target2D),
+    positionColor(QOpenGLTexture::Target2D),
+    normalColor(QOpenGLTexture::Target2D),
     fboDepth(QOpenGLTexture::Target2D)
 {
     fbo = nullptr;
@@ -54,6 +60,9 @@ DeferredRenderer::DeferredRenderer() :
     addTexture("Final render");
     addTexture("White");
     addTexture("Black");
+    addTexture("Position texture");
+    addTexture("Normal texture");
+    addTexture("Albedo");
 }
 
 DeferredRenderer::~DeferredRenderer()
@@ -107,6 +116,36 @@ void DeferredRenderer::resize(int w, int h)
     gl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     gl->glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
 
+    if (albedoColor == 0) gl->glDeleteTextures(1, &albedoColor);
+    gl->glGenTextures(1, &albedoColor);
+    gl->glBindTexture(GL_TEXTURE_2D, albedoColor);
+    gl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    gl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    gl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+    gl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    gl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    gl->glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+
+    if (positionColor == 0) gl->glDeleteTextures(1, &positionColor);
+    gl->glGenTextures(1, &positionColor);
+    gl->glBindTexture(GL_TEXTURE_2D, positionColor);
+    gl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    gl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    gl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+    gl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    gl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    gl->glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+
+    if (normalColor == 0) gl->glDeleteTextures(1, &normalColor);
+    gl->glGenTextures(1, &normalColor);
+    gl->glBindTexture(GL_TEXTURE_2D, normalColor);
+    gl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    gl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    gl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+    gl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    gl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    gl->glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+
     if (fboDepth == 0) gl->glDeleteTextures(1, &fboDepth);
     gl->glGenTextures(1, &fboDepth);
     gl->glBindTexture(GL_TEXTURE_2D, fboDepth);
@@ -121,7 +160,17 @@ void DeferredRenderer::resize(int w, int h)
 
     fbo->bind();
     fbo->addColorAttachment(0, fboColor);
+    fbo->addColorAttachment(1, albedoColor);
+    fbo->addColorAttachment(2, positionColor);
+    fbo->addColorAttachment(3, normalColor);
     fbo->addDepthAttachment(fboDepth);
+
+    unsigned int atachment[4] = { GL_COLOR_ATTACHMENT0,
+                                  GL_COLOR_ATTACHMENT1,
+                                  GL_COLOR_ATTACHMENT2,
+                                  GL_COLOR_ATTACHMENT3};
+    gl->glDrawBuffers(4, atachment);
+
     fbo->checkStatus();
     fbo->release();
 }
@@ -250,8 +299,17 @@ void DeferredRenderer::passBlit()
         else if(shownTexture() == "White") {
             gl->glBindTexture(GL_TEXTURE_2D, resourceManager->texWhite->textureId());
         }
-        else{
+        else if(shownTexture() == "Black"){
             gl->glBindTexture(GL_TEXTURE_2D, resourceManager->texBlack->textureId());
+        }
+        else if(shownTexture() == "Position texture"){
+            gl->glBindTexture(GL_TEXTURE_2D, positionColor);
+        }
+        else if(shownTexture() == "Normal texture"){
+            gl->glBindTexture(GL_TEXTURE_2D, normalColor);
+        }
+        else if(shownTexture() == "Albedo"){
+            gl->glBindTexture(GL_TEXTURE_2D, albedoColor);
         }
 
         resourceManager->quad->submeshes[0]->draw();
