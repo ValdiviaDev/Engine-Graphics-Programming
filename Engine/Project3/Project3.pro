@@ -9,6 +9,36 @@ CONFIG += c++11
 CONFIG += console
 
 SOURCES += \
+    src/MathGeoLib/Algorithm/Random/LCG.cpp \
+    src/MathGeoLib/Geometry/AABB.cpp \
+    src/MathGeoLib/Geometry/Capsule.cpp \
+    src/MathGeoLib/Geometry/Circle.cpp \
+    src/MathGeoLib/Geometry/Frustum.cpp \
+    src/MathGeoLib/Geometry/Line.cpp \
+    src/MathGeoLib/Geometry/LineSegment.cpp \
+    src/MathGeoLib/Geometry/OBB.cpp \
+    src/MathGeoLib/Geometry/Plane.cpp \
+    src/MathGeoLib/Geometry/Polygon.cpp \
+    src/MathGeoLib/Geometry/Polyhedron.cpp \
+    src/MathGeoLib/Geometry/Ray.cpp \
+    src/MathGeoLib/Geometry/Sphere.cpp \
+    src/MathGeoLib/Geometry/Triangle.cpp \
+    src/MathGeoLib/Geometry/TriangleMesh.cpp \
+    src/MathGeoLib/Math/BitOps.cpp \
+    src/MathGeoLib/Math/MathFunc.cpp \
+    src/MathGeoLib/Math/MathLog.cpp \
+    src/MathGeoLib/Math/MathOps.cpp \
+    src/MathGeoLib/Math/Polynomial.cpp \
+    src/MathGeoLib/Math/Quat.cpp \
+    src/MathGeoLib/Math/SSEMath.cpp \
+    src/MathGeoLib/Math/TransformOps.cpp \
+    src/MathGeoLib/Math/float2.cpp \
+    src/MathGeoLib/Math/float3.cpp \
+    src/MathGeoLib/Math/float3x3.cpp \
+    src/MathGeoLib/Math/float3x4.cpp \
+    src/MathGeoLib/Math/float4.cpp \
+    src/MathGeoLib/Math/float4x4.cpp \
+    src/MathGeoLib/Time/Clock.cpp \
     src/main.cpp \
     src/globals.cpp \
     src/ecs/camera.cpp \
@@ -50,6 +80,70 @@ SOURCES += \
     src/util/modelimporter.cpp
 
 HEADERS += \
+    src/MathGeoLib/Algorithm/Random/LCG.h \
+    src/MathGeoLib/Geometry/AABB.h \
+    src/MathGeoLib/Geometry/AABB2D.h \
+    src/MathGeoLib/Geometry/Capsule.h \
+    src/MathGeoLib/Geometry/Circle.h \
+    src/MathGeoLib/Geometry/Frustum.h \
+    src/MathGeoLib/Geometry/GeomType.h \
+    src/MathGeoLib/Geometry/GeometryAll.h \
+    src/MathGeoLib/Geometry/HitInfo.h \
+    src/MathGeoLib/Geometry/KDTree.h \
+    src/MathGeoLib/Geometry/KDTree.inl \
+    src/MathGeoLib/Geometry/Line.h \
+    src/MathGeoLib/Geometry/LineSegment.h \
+    src/MathGeoLib/Geometry/OBB.h \
+    src/MathGeoLib/Geometry/PBVolume.h \
+    src/MathGeoLib/Geometry/Plane.h \
+    src/MathGeoLib/Geometry/Polygon.h \
+    src/MathGeoLib/Geometry/Polyhedron.h \
+    src/MathGeoLib/Geometry/QuadTree.h \
+    src/MathGeoLib/Geometry/QuadTree.inl \
+    src/MathGeoLib/Geometry/Ray.h \
+    src/MathGeoLib/Geometry/Sphere.h \
+    src/MathGeoLib/Geometry/Triangle.h \
+    src/MathGeoLib/Geometry/TriangleMesh.h \
+    src/MathGeoLib/Geometry/TriangleMesh_IntersectRay_AVX.inl \
+    src/MathGeoLib/Geometry/TriangleMesh_IntersectRay_CPP.inl \
+    src/MathGeoLib/Geometry/TriangleMesh_IntersectRay_SSE.inl \
+    src/MathGeoLib/Math/BitOps.h \
+    src/MathGeoLib/Math/Complex.h \
+    src/MathGeoLib/Math/CoordinateAxisConvention.h \
+    src/MathGeoLib/Math/FixedPoint.h \
+    src/MathGeoLib/Math/FloatCmp.h \
+    src/MathGeoLib/Math/MathAll.h \
+    src/MathGeoLib/Math/MathConstants.h \
+    src/MathGeoLib/Math/MathFunc.h \
+    src/MathGeoLib/Math/MathLog.h \
+    src/MathGeoLib/Math/MathNamespace.h \
+    src/MathGeoLib/Math/MathTypes.h \
+    src/MathGeoLib/Math/Matrix.inl \
+    src/MathGeoLib/Math/MatrixProxy.h \
+    src/MathGeoLib/Math/Polynomial.h \
+    src/MathGeoLib/Math/Quat.h \
+    src/MathGeoLib/Math/Rect.h \
+    src/MathGeoLib/Math/Reinterpret.h \
+    src/MathGeoLib/Math/SSEMath.h \
+    src/MathGeoLib/Math/TransformOps.h \
+    src/MathGeoLib/Math/assume.h \
+    src/MathGeoLib/Math/float2.h \
+    src/MathGeoLib/Math/float3.h \
+    src/MathGeoLib/Math/float3x3.h \
+    src/MathGeoLib/Math/float3x4.h \
+    src/MathGeoLib/Math/float4.h \
+    src/MathGeoLib/Math/float4_neon.h \
+    src/MathGeoLib/Math/float4_sse.h \
+    src/MathGeoLib/Math/float4x4.h \
+    src/MathGeoLib/Math/float4x4_neon.h \
+    src/MathGeoLib/Math/float4x4_sse.h \
+    src/MathGeoLib/Math/myassert.h \
+    src/MathGeoLib/Math/quat_simd.h \
+    src/MathGeoLib/Math/sse_mathfun.h \
+    src/MathGeoLib/MathBuildConfig.h \
+    src/MathGeoLib/MathGeoLib.h \
+    src/MathGeoLib/MathGeoLibFwd.h \
+    src/MathGeoLib/Time/Clock.h \
     src/globals.h \
     src/ecs/camera.h \
     src/ecs/scene.h \
