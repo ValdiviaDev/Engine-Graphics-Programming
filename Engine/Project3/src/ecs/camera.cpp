@@ -2,7 +2,6 @@
 #include <QtMath>
 #include <QMatrix3x3>
 
-
 Camera::Camera()
 {
     // Camera position

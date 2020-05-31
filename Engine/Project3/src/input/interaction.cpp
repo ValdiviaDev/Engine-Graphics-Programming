@@ -15,6 +15,10 @@ bool Interaction::update()
         changed = idle();
         break;
 
+    case State::MousePicking:
+        changed = mousePicking();
+        break;
+
     case State::Navigating:
         changed = navigate();
         break;
@@ -36,6 +40,7 @@ bool Interaction::idle()
     else if (input->mouseButtons[Qt::LeftButton] == MouseButtonState::Press)
     {
         // TODO: Left click
+        nextState = State::MousePicking;
     }
     else if(selection->count > 0)
     {
@@ -152,7 +157,6 @@ bool Interaction::navigate()
     {
         nextState = State::Idle;
     }
-
     return true;
 }
 
@@ -196,6 +200,16 @@ bool Interaction::focus()
     }
 
     return true;
+}
+
+bool Interaction::mousePicking(){
+
+   //Throw a ray from the screen to the world
+   camera->screenPointToWorldRay(input->mousex, input->mousey);
+
+
+
+   return true;
 }
 
 void Interaction::postUpdate()

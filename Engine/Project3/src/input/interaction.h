@@ -15,9 +15,10 @@ private:
     bool idle();
     bool navigate();
     bool focus();
+    bool mousePicking();
 
 
-    enum State { Idle, Navigating, Focusing };
+    enum State { Idle, Navigating, Focusing, MousePicking };
     State state = State::Idle;
     State nextState = State::Idle;
 };

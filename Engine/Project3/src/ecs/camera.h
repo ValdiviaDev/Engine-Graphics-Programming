@@ -26,7 +26,6 @@ public:
     // Create the matrices
     void prepareMatrices();
 
-
     // Viewport
     int viewportWidth = 128;
     int viewportHeight = 128;
