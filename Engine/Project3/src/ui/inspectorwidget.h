@@ -58,7 +58,6 @@ private:
     QWidget *contentsWidget = nullptr;
     QScrollArea *scrollArea = nullptr;
 
-    Entity *entity = nullptr;
     QLayout *layout = nullptr;
     EntityWidget *entityWidget = nullptr;
     TransformWidget *transformWidget = nullptr;
@@ -75,6 +74,10 @@ private:
     MeshWidget *meshWidget = nullptr;
     TextureWidget *textureWidget = nullptr;
     MaterialWidget *materialWidget = nullptr;
+
+public:
+    Entity *entity = nullptr;
+
 };
 
 #endif // INSPECTORWIDGET_H

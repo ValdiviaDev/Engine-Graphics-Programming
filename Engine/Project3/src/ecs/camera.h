@@ -6,6 +6,7 @@
 #include <QVector4D>
 #include <QMatrix4x4>
 
+class Entity;
 static const float DEFAULT_CAMERA_SPEED = 4.0f;
 static const float DEFAULT_CAMERA_FOVY = 60.0f;
 static const float DEFAULT_CAMERA_ZNEAR = 0.01f;
@@ -22,6 +23,8 @@ public:
     QVector3D screenPointToWorldRay(int x, int y);
     QVector3D screenDisplacementToWorldVector(int x0, int y0, int x1, int y1, const QVector3D &worldPoint);
     QVector2D worldToScreenPoint(const QVector3D &p);
+
+    Entity* selected_entity;
 
     // Create the matrices
     void prepareMatrices();

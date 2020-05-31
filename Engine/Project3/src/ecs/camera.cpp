@@ -1,11 +1,13 @@
 #include "camera.h"
 #include <QtMath>
 #include <QMatrix3x3>
+#include "entity.h"
 
 Camera::Camera()
 {
     // Camera position
     position = QVector3D(0.0, 2.0, 6.0);
+    selected_entity = nullptr;
 }
 
 QVector4D Camera::getLeftRightBottomTop()

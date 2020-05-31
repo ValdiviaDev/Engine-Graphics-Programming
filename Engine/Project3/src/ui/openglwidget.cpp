@@ -6,6 +6,7 @@
 #include "input/input.h"
 #include "input/interaction.h"
 #include "ecs/camera.h"
+#include "ui/inspectorwidget.h"
 #include <iostream>
 
 
@@ -40,6 +41,7 @@ OpenGLWidget::OpenGLWidget(QWidget *parent)
     selection = new Selection();
     renderer = new DeferredRenderer();
     miscSettings = new MiscSettings();
+    inspector = new InspectorWidget();
 
     // global
     ::input = input;
@@ -56,6 +58,7 @@ OpenGLWidget::~OpenGLWidget()
     delete interaction;
     delete camera;
     delete input;
+    delete inspector;
 
     gl = nullptr;
 }

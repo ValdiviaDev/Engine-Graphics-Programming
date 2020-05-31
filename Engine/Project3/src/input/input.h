@@ -38,6 +38,8 @@ public:
     int mousey = 0;
     int mousex_prev = 0;
     int mousey_prev = 0;
+
+    float rotation_speed = 3.0f;
 };
 
 #endif // INPUT_H

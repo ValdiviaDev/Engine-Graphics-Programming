@@ -157,6 +157,41 @@ bool Interaction::navigate()
     {
         nextState = State::Idle;
     }
+
+    if(input->keys[Qt::Key_Z] == KeyState::Pressed)
+        {
+           // QMessageLogger("Yes", 89, 0).debug() << "error.description(";
+
+            if((mousex_delta != 0 || mousey_delta != 0) && inspector->entity!= nullptr)
+            {
+
+               float len = QVector3D(camera->position - inspector->entity->transform->position).length();
+
+
+               QVector3D front_vec = QVector3D(-sinf(qDegreesToRadians(yaw)) * cosf(qDegreesToRadians(pitch)),
+                                                            sinf(qDegreesToRadians(pitch)),
+                                                            -cosf(qDegreesToRadians(yaw)) * cosf(qDegreesToRadians(pitch)));
+               front_vec *= len;
+
+               camera->position += front_vec;
+
+               yaw -= input->rotation_speed * mousex_delta;
+               pitch -= input->rotation_speed * mousey_delta;
+               while(yaw < 0.0f)yaw += 360.0f;
+               while(yaw > 360.0f)yaw -= 360.0f;
+               if(pitch > 89.0f)pitch = 89.0f;
+               if(pitch < -89.0f)pitch = -89.0f;
+
+               QVector3D back_vec = QVector3D(sinf(qDegreesToRadians(yaw)) * cosf(qDegreesToRadians(pitch)),
+                                                            -sinf(qDegreesToRadians(pitch)),
+                                                            cosf(qDegreesToRadians(yaw)) * cosf(qDegreesToRadians(pitch)));
+               back_vec *= len;
+
+               camera->position += back_vec;
+           }
+
+         }
+
     return true;
 }
 

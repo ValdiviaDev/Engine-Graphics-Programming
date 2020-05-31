@@ -10,6 +10,8 @@
 #include "ui/materialwidget.h"
 #include "ui/resourcewidget.h"
 #include "ecs/scene.h"
+#include "ecs/camera.h"
+#include "globals.h"
 #include "resources/resource.h"
 #include <QLayout>
 #include <QVBoxLayout>
@@ -126,6 +128,7 @@ QSize InspectorWidget::sizeHint() const
 void InspectorWidget::showEntity(Entity *e)
 {
     entity = e;
+   // camera->selected_entity = e;
     resource = nullptr;
     updateLayout();
 }
@@ -133,6 +136,7 @@ void InspectorWidget::showEntity(Entity *e)
 void InspectorWidget::showResource(Resource *r)
 {
     entity = nullptr;
+    //camera->selected_entity = nullptr;
     resource = r;
     updateLayout();
 }
@@ -147,6 +151,7 @@ void InspectorWidget::onEntityRemoved(Entity *e)
     if (entity == e)
     {
         entity = nullptr;
+       // camera->selected_entity = nullptr;
         updateLayout();
     }
 }

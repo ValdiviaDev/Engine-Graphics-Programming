@@ -8,3 +8,4 @@ Interaction *interaction = nullptr;
 Selection *selection = nullptr;
 MiscSettings *miscSettings = nullptr;
 QString projectDirectory;
+InspectorWidget *inspector = nullptr;
