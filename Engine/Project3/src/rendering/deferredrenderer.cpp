@@ -16,14 +16,37 @@
 #include <QOpenGLTexture>
 
 
-static void sendLightsToProgram(QOpenGLShaderProgram &program, const QMatrix4x4 &viewMatrix)
+void DeferredRenderer::passLights(const QMatrix4x4 &viewMatrix)
 {
     QVector<int> lightType;
     QVector<QVector3D> lightPosition;
     QVector<QVector3D> lightDirection;
     QVector<QVector3D> lightColor;
 
+    QOpenGLShaderProgram &program = lightProgram->program;
 
+    //GLenum draw_buffers = GL_COLOR_ATTACHMENT3;
+    //glDrawBuffer(draw_buffers);
+
+    program.bind();
+    program.setUniformValue("viewPos", camera->position);
+
+    //gl->glActiveTexture(GL_TEXTURE0);
+    //glBindTexture(GL_TEXTURE_2D, positionColor);
+    //gl->glActiveTexture(GL_TEXTURE1);
+    //glBindTexture(GL_TEXTURE_2D, normalColor);
+    //gl->glActiveTexture(GL_TEXTURE2);
+    //glBindTexture(GL_TEXTURE_2D, albedoColor);
+
+    program.setUniformValue(program.uniformLocation("gPosition"), 0);
+    gl->glActiveTexture(positionColor);
+    gl->glBindTexture(GL_TEXTURE_2D, positionColor);
+    program.setUniformValue(program.uniformLocation("gNormal"), 1);
+    gl->glActiveTexture(normalColor);
+    gl->glBindTexture(GL_TEXTURE_2D, normalColor);
+    program.setUniformValue(program.uniformLocation("gAlbedoSpec"), 2);
+    gl->glActiveTexture(albedoColor);
+    gl->glBindTexture(GL_TEXTURE_2D, albedoColor);
 
     for (auto entity : scene->entities)
     {
@@ -45,6 +68,9 @@ static void sendLightsToProgram(QOpenGLShaderProgram &program, const QMatrix4x4 
         program.setUniformValueArray("lightColor", &lightColor[0], lightColor.size());
     }
     program.setUniformValue("lightCount", lightPosition.size());
+
+    program.release();
+
 }
 
 DeferredRenderer::DeferredRenderer() :
@@ -81,6 +107,12 @@ void DeferredRenderer::initialize()
     deferredProgram->vertexShaderFilename = "res/shaders/deferred_shading.vert";
     deferredProgram->fragmentShaderFilename = "res/shaders/deferred_shading.frag";
     deferredProgram->includeForSerialization = false;
+
+    lightProgram = resourceManager->createShaderProgram();
+    lightProgram->name = "Light shading";
+    lightProgram->vertexShaderFilename = "res/shaders/light_shading.vert";
+    lightProgram->fragmentShaderFilename = "res/shaders/light_shading.frag";
+    lightProgram->includeForSerialization = false;
 
     blitProgram = resourceManager->createShaderProgram();
     blitProgram->name = "Blit";
@@ -159,10 +191,11 @@ void DeferredRenderer::resize(int w, int h)
     // Attach textures to the fbo
 
     fbo->bind();
-    fbo->addColorAttachment(0, fboColor);
-    fbo->addColorAttachment(1, albedoColor);
-    fbo->addColorAttachment(2, positionColor);
-    fbo->addColorAttachment(3, normalColor);
+    //fbo->addColorAttachment(0, fboColor);
+    fbo->addColorAttachment(0, albedoColor);
+    fbo->addColorAttachment(1, positionColor);
+    fbo->addColorAttachment(2, normalColor);
+    fbo->addColorAttachment(3, fboColor);
     fbo->addDepthAttachment(fboDepth);
 
     unsigned int atachment[4] = { GL_COLOR_ATTACHMENT0,
@@ -191,6 +224,7 @@ void DeferredRenderer::render(Camera *camera)
 
     // Passes
     passMeshes(camera);
+    passLights(camera->viewMatrix);
 
     fbo->release();
 
@@ -275,7 +309,7 @@ void DeferredRenderer::passMeshes(Camera *camera)
         }
 
         //Pass the lights
-        sendLightsToProgram(program, camera->viewMatrix);
+        //passLights(camera->viewMatrix);
 
         program.release();
     }

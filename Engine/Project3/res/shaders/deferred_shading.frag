@@ -29,10 +29,10 @@ in vec4 vPosition;
 in vec4 vNormal;
 in vec2 vTexCoords;
 
-layout(location=0) out vec4 outColor;
-layout(location=1) out vec4 outAlbedoSpecular;
-layout(location=2) out vec4 outPosition;
-layout(location=3) out vec4 outNormal;
+//layout(location=0) out vec4 outColor;
+layout(location=0) out vec4 outAlbedoSpecular;
+layout(location=1) out vec4 outPosition;
+layout(location=2) out vec4 outNormal;
 
 void main(void){
 
@@ -44,19 +44,19 @@ void main(void){
     albedoSpecular.a = texture(specularTexture, vTexCoords).r;
 
     //Calculate lighting
-    vec3 lighting = albedoSpecular.rgb * 0.1;
+    //vec3 lighting = albedoSpecular.rgb * 0.1;
    // vec3 viewDir = normalize(viewPos - vPosition.xyz);
 
-    for(int i = 0; i < lightCount; ++i)
-    {
+    //for(int i = 0; i < lightCount; ++i)
+    //{
       // Diffuse
-      vec3 lightDir = normalize(lightPosition[i] - vPosition.xyz);
-      vec3 diffuse = max(dot(vNormal.xyz, lightDir), 0.0) * albedoSpecular.rgb * lightColor[i];
-      lighting += diffuse;
-    }
+    //  vec3 lightDir = normalize(lightPosition[i] - vPosition.xyz);
+    //  vec3 diffuse = max(dot(vNormal.xyz, lightDir), 0.0) * albedoSpecular.rgb * lightColor[i];
+    //  lighting += diffuse;
+   // }
 
 
-    outColor = vec4(lighting, 1.0);
+    //outColor = vec4(lighting, 1.0);
     outPosition = vPosition;
     outNormal = vNormal;
     outAlbedoSpecular = albedoSpecular;

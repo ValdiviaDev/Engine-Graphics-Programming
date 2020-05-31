@@ -23,10 +23,12 @@ public:
 private:
 
     void passMeshes(Camera *camera);
+    void passLights(const QMatrix4x4 &viewMatrix);
     void passBlit();
 
     // Shaders
     ShaderProgram *deferredProgram = nullptr;
+    ShaderProgram *lightProgram = nullptr;
     ShaderProgram *blitProgram;
 
     GLuint fboColor = 0;
