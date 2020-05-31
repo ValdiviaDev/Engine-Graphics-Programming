@@ -162,10 +162,10 @@ bool Interaction::navigate()
         {
            // QMessageLogger("Yes", 89, 0).debug() << "error.description(";
 
-            if((mousex_delta != 0 || mousey_delta != 0) && inspector->entity!= nullptr)
+            if((mousex_delta != 0 || mousey_delta != 0) && camera->selected_entity != nullptr)
             {
-
-               float len = QVector3D(camera->position - inspector->entity->transform->position).length();
+               //QVector3D middle_point = (camera->selected_entity->meshRenderer->mesh->bounds.min + camera->selected_entity->meshRenderer->mesh->bounds.max) / 2;
+               float len = QVector3D(camera->position - camera->selected_entity->transform->position).length();
 
 
                QVector3D front_vec = QVector3D(-sinf(qDegreesToRadians(yaw)) * cosf(qDegreesToRadians(pitch)),

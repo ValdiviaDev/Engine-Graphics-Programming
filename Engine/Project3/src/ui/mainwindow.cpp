@@ -194,6 +194,7 @@ void MainWindow::closeProject()
     selection->clear();
     resourceManager->clear();
     inspectorWidget->showEntity(nullptr);
+    camera->selected_entity = nullptr;
     updateEverything();
 }
 
@@ -325,6 +326,7 @@ void MainWindow::onSceneChanged()
 void MainWindow::onEntityAdded(Entity * entity)
 {
     inspectorWidget->showEntity(entity);
+    camera->selected_entity = entity;
     updateEverything();
 }
 
@@ -339,12 +341,14 @@ void MainWindow::onEntitySelectedFromHierarchy(Entity *entity)
 {
     selection->onEntitySelectedFromEditor(entity);
     inspectorWidget->showEntity(entity);
+    camera->selected_entity = entity;
     openGLWidget->update();
 }
 
 void MainWindow::onEntitySelectedFromSceneView(Entity *entity)
 {
     inspectorWidget->showEntity(entity);
+    camera->selected_entity = entity;
     openGLWidget->update();
 }
 
