@@ -25,18 +25,12 @@ void DeferredRenderer::passLights(const QMatrix4x4 &viewMatrix)
 
     QOpenGLShaderProgram &program = lightProgram->program;
 
-    //GLenum draw_buffers = GL_COLOR_ATTACHMENT3;
-    //glDrawBuffer(draw_buffers);
+    QOpenGLExtraFunctions* gl_functions = QOpenGLContext::currentContext()->extraFunctions();
+    GLenum draw_buffers = GL_COLOR_ATTACHMENT3;
+    glDrawBuffer(draw_buffers);
 
     program.bind();
     program.setUniformValue("viewPos", camera->position);
-
-    //gl->glActiveTexture(GL_TEXTURE0);
-    //glBindTexture(GL_TEXTURE_2D, positionColor);
-    //gl->glActiveTexture(GL_TEXTURE1);
-    //glBindTexture(GL_TEXTURE_2D, normalColor);
-    //gl->glActiveTexture(GL_TEXTURE2);
-    //glBindTexture(GL_TEXTURE_2D, albedoColor);
 
     program.setUniformValue(program.uniformLocation("gPosition"), 0);
     gl->glActiveTexture(positionColor);
@@ -214,6 +208,10 @@ void DeferredRenderer::render(Camera *camera)
 
     fbo->bind();
 
+    QOpenGLExtraFunctions* gl_functions = QOpenGLContext::currentContext()->extraFunctions();
+    GLenum buffers[] = {GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3 }; //Albedo, Normals
+    gl->glDrawBuffers(4, buffers);
+
     // Clear color
     gl->glClearDepth(1.0);
     gl->glClearColor(miscSettings->backgroundColor.redF(),
@@ -221,6 +219,8 @@ void DeferredRenderer::render(Camera *camera)
                      miscSettings->backgroundColor.blueF(),
                      1.0);
     gl->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    glDrawBuffer(0);
 
     // Passes
     passMeshes(camera);
@@ -236,6 +236,10 @@ void DeferredRenderer::render(Camera *camera)
 void DeferredRenderer::passMeshes(Camera *camera)
 {
     QOpenGLShaderProgram &program = deferredProgram->program;
+
+    QOpenGLExtraFunctions* gl_functions = QOpenGLContext::currentContext()->extraFunctions();
+    GLenum buffers[] = {GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2 }; //Albedo, Normals
+    gl->glDrawBuffers(3, buffers);
 
     if (program.bind())
     {
