@@ -25,21 +25,23 @@ void DeferredRenderer::passLights(const QMatrix4x4 &viewMatrix)
 
     QOpenGLShaderProgram &program = lightProgram->program;
 
-    QOpenGLExtraFunctions* gl_functions = QOpenGLContext::currentContext()->extraFunctions();
     GLenum draw_buffers = GL_COLOR_ATTACHMENT3;
-    glDrawBuffer(draw_buffers);
+    gl->glDrawBuffer(draw_buffers);
+
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_ONE, GL_ONE);
+    glDepthMask(GL_FALSE);
 
     program.bind();
-    program.setUniformValue("viewPos", camera->position);
 
-    program.setUniformValue(program.uniformLocation("gPosition"), 0);
-    gl->glActiveTexture(positionColor);
+    program.setUniformValue(program.uniformLocation("gPosition"), positionColor);
+    gl->glActiveTexture(GL_TEXTURE0);
     gl->glBindTexture(GL_TEXTURE_2D, positionColor);
-    program.setUniformValue(program.uniformLocation("gNormal"), 1);
-    gl->glActiveTexture(normalColor);
+    program.setUniformValue(program.uniformLocation("gNormal"), normalColor);
+    gl->glActiveTexture(GL_TEXTURE1);
     gl->glBindTexture(GL_TEXTURE_2D, normalColor);
-    program.setUniformValue(program.uniformLocation("gAlbedoSpec"), 2);
-    gl->glActiveTexture(albedoColor);
+    program.setUniformValue(program.uniformLocation("gAlbedoSpec"), albedoColor);
+    gl->glActiveTexture(GL_TEXTURE2);
     gl->glBindTexture(GL_TEXTURE_2D, albedoColor);
 
     for (auto entity : scene->entities)
@@ -54,14 +56,41 @@ void DeferredRenderer::passLights(const QMatrix4x4 &viewMatrix)
             lightColor.push_back(color * light->intensity);
         }
     }
-    if (lightPosition.size() > 0)
+   // if (lightPosition.size() > 0)
+   // {
+   //     program.setUniformValueArray("lightType", &lightType[0], lightType.size());
+   //     program.setUniformValueArray("lightPosition", &lightPosition[0], lightPosition.size());
+   //     program.setUniformValueArray("lightDirection", &lightDirection[0], lightDirection.size());
+   //     program.setUniformValueArray("lightColor", &lightColor[0], lightColor.size());
+   // }
+   // program.setUniformValue("lightCount", lightPosition.size());
+
+    for (auto entity : scene->entities)
     {
-        program.setUniformValueArray("lightType", &lightType[0], lightType.size());
-        program.setUniformValueArray("lightPosition", &lightPosition[0], lightPosition.size());
-        program.setUniformValueArray("lightDirection", &lightDirection[0], lightDirection.size());
-        program.setUniformValueArray("lightColor", &lightColor[0], lightColor.size());
+        if (entity->active && entity->lightSource != nullptr)
+        {
+            auto light = entity->lightSource;
+            //lightType.push_back(int(light->type));
+            program.setUniformValue("lightType", int(light->type));
+            //lightPosition.push_back(QVector3D(viewMatrix * entity->transform->matrix() * QVector4D(0.0, 0.0, 0.0, 1.0)));
+            program.setUniformValue("lightPosition", QVector3D(viewMatrix * entity->transform->matrix() * QVector4D(0.0, 0.0, 0.0, 1.0)));
+            //lightDirection.push_back(QVector3D(viewMatrix * entity->transform->matrix() * QVector4D(0.0, 1.0, 0.0, 0.0)));
+            program.setUniformValue("lightDirection", QVector3D(viewMatrix * entity->transform->matrix() * QVector4D(0.0, 1.0, 0.0, 0.0)));
+            QVector3D color(light->color.redF(), light->color.greenF(), light->color.blueF());
+            program.setUniformValue("lightColor", color * light->intensity);
+            //lightColor.push_back(color * light->intensity);
+            for(auto submesh : resourceManager->quad->submeshes){
+                submesh->draw();
+            }
+        }
     }
-    program.setUniformValue("lightCount", lightPosition.size());
+
+    //for(auto submesh : resourceManager->quad->submeshes){
+    //    submesh->draw();
+    //}
+
+    glDisable(GL_BLEND);
+    glDepthMask(GL_TRUE);
 
     program.release();
 
@@ -208,7 +237,6 @@ void DeferredRenderer::render(Camera *camera)
 
     fbo->bind();
 
-    QOpenGLExtraFunctions* gl_functions = QOpenGLContext::currentContext()->extraFunctions();
     GLenum buffers[] = {GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3 }; //Albedo, Normals
     gl->glDrawBuffers(4, buffers);
 
@@ -237,7 +265,6 @@ void DeferredRenderer::passMeshes(Camera *camera)
 {
     QOpenGLShaderProgram &program = deferredProgram->program;
 
-    QOpenGLExtraFunctions* gl_functions = QOpenGLContext::currentContext()->extraFunctions();
     GLenum buffers[] = {GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2 }; //Albedo, Normals
     gl->glDrawBuffers(3, buffers);
 
