@@ -18,7 +18,7 @@ float grid(vec3 worldPos, float gridStep)
 {
     // Compute world-space grid lines
     vec2 grid = fwidth(worldPos.xz) / mod(worldPos.xz, gridStep);
-    return step(0.8, max(grid.x, grid.y)); // line
+    return step(1.0, max(grid.x, grid.y)); // line
 }
 
 void main(void)
@@ -47,12 +47,9 @@ void main(void)
     {
         vec3 hitWorldSpace = eyePosWorldSpace + (eyeDirWorldSpace * rayPlaneIntersection);
 
-        outColor = vec4(grid(hitWorldSpace, 5.0) * 0.5);
-
-        vec4 hitViewSpace = viewMatrix * vec4(hitWorldSpace, 1.0);
-        vec4 hitClipSpace = projectionMatrix * hitViewSpace;
-        vec4 hitNDC = hitClipSpace / hitClipSpace.w;
-        gl_FragDepth = hitNDC.z * 0.5 + 0.5;
+        outColor = vec4(grid(hitWorldSpace, 1.0) * 0.5);
+        outColor += vec4(grid(hitWorldSpace, 10.0) * 0.5);
+        outColor += vec4(grid(hitWorldSpace, 100.0) * 0.5);
     }
     else
     {
