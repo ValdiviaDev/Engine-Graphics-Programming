@@ -44,6 +44,7 @@ void DeferredRenderer::passLights(const QMatrix4x4 &viewMatrix)
     gl->glActiveTexture(GL_TEXTURE0);
     gl->glBindTexture(GL_TEXTURE_2D, albedoColor);
 
+    int lights_count = 0;
    for (auto entity : scene->entities)
    {
        if (entity->active && entity->lightSource != nullptr)
@@ -59,7 +60,11 @@ void DeferredRenderer::passLights(const QMatrix4x4 &viewMatrix)
            program.setUniformValue("lightColor", color * light->intensity);
            //lightColor.push_back(color * light->intensity);
            resourceManager->quad->submeshes[0]->draw();
+           lights_count++;
        }
+   }
+   if(lights_count == 0){
+        resourceManager->quad->submeshes[0]->draw();
    }
 
     glDisable(GL_BLEND);
