@@ -40,7 +40,7 @@ bool Interaction::idle()
     else if (input->mouseButtons[Qt::LeftButton] == MouseButtonState::Press)
     {
         // TODO: Left click
-        nextState = State::MousePicking;
+        //nextState = State::MousePicking;
     }
     else if(selection->count > 0)
     {
