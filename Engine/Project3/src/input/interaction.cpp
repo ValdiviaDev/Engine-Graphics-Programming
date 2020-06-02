@@ -58,11 +58,17 @@ bool Interaction::navigate()
     static float v = 0.0f; // Instant speed
     static const float a = 5.0f; // Constant acceleration
     static const float t = 1.0/60.0f; // Delta time
+    bool orbiting = false;
+
+    //Check if orbiting or not
+    if(input->keys[Qt::Key_Z] == KeyState::Pressed && camera->selected_entity != nullptr)
+        orbiting = true;
 
     bool pollEvents = input->mouseButtons[Qt::RightButton] == MouseButtonState::Pressed;
     bool cameraChanged = false;
 
     // Mouse delta smoothing
+
     static float mousex_delta_prev[3] = {};
     static float mousey_delta_prev[3] = {};
     static int curr_mousex_delta_prev = 0;
@@ -86,15 +92,17 @@ bool Interaction::navigate()
     float &pitch = camera->pitch;
 
     // Camera navigation
-    if (mousex_delta != 0 || mousey_delta != 0)
-    {
-        cameraChanged = true;
-        yaw -= 0.5f * mousex_delta;
-        pitch -= 0.5f * mousey_delta;
-        while (yaw < 0.0f) yaw += 360.0f;
-        while (yaw > 360.0f) yaw -= 360.0f;
-        if (pitch > 89.0f) pitch = 89.0f;
-        if (pitch < -89.0f) pitch = -89.0f;
+    if(!orbiting) {
+        if (mousex_delta != 0 || mousey_delta != 0)
+        {
+            cameraChanged = true;
+            yaw -= 0.5f * mousex_delta;
+            pitch -= 0.5f * mousey_delta;
+            while (yaw < 0.0f) yaw += 360.0f;
+            while (yaw > 360.0f) yaw -= 360.0f;
+            if (pitch > 89.0f) pitch = 89.0f;
+            if (pitch < -89.0f) pitch = -89.0f;
+        }
     }
 
     static QVector3D speedVector;
@@ -129,20 +137,21 @@ bool Interaction::navigate()
                                         0.0f,
                                         -sinf(qDegreesToRadians(yaw))) * a * t;
     }
-    if (input->keys[Qt::Key_Q] == KeyState::Pressed) // Front
+    if (input->keys[Qt::Key_E] == KeyState::Pressed) // Up
     {
         accelerating = true;
         speedVector += QVector3D(0.0f,
                 1.0f,
                 0.0f) * a * t;
     }
-    if (input->keys[Qt::Key_E] == KeyState::Pressed) // Front
+    if (input->keys[Qt::Key_Q] == KeyState::Pressed) // Down
     {
         accelerating = true;
         speedVector += QVector3D(0.0f,
                 -1.0f,
                 0.0f) * a * t;
     }
+
 
     if (!accelerating) {
         speedVector *= 0.9;
@@ -158,7 +167,8 @@ bool Interaction::navigate()
         nextState = State::Idle;
     }
 
-    if(input->keys[Qt::Key_Z] == KeyState::Pressed)
+    //Camera orbit
+    if(orbiting)
         {
            // QMessageLogger("Yes", 89, 0).debug() << "error.description(";
 
