@@ -44,51 +44,23 @@ void DeferredRenderer::passLights(const QMatrix4x4 &viewMatrix)
     gl->glActiveTexture(GL_TEXTURE0);
     gl->glBindTexture(GL_TEXTURE_2D, albedoColor);
 
-   //for (auto entity : scene->entities)
-   //{
-   //    if (entity->active && entity->lightSource != nullptr)
-   //    {
-   //        auto light = entity->lightSource;
-   //        lightType.push_back(int(light->type));
-   //        lightPosition.push_back(QVector3D(viewMatrix * entity->transform->matrix() * QVector4D(0.0, 0.0, 0.0, 1.0)));
-   //        lightDirection.push_back(QVector3D(viewMatrix * entity->transform->matrix() * QVector4D(0.0, 1.0, 0.0, 0.0)));
-   //        QVector3D color(light->color.redF(), light->color.greenF(), light->color.blueF());
-   //        lightColor.push_back(color * light->intensity);
-   //    }
-   //}
-   // if (lightPosition.size() > 0)
-   // {
-   //     program.setUniformValueArray("lightType", &lightType[0], lightType.size());
-   //     program.setUniformValueArray("lightPosition", &lightPosition[0], lightPosition.size());
-   //     program.setUniformValueArray("lightDirection", &lightDirection[0], lightDirection.size());
-   //     program.setUniformValueArray("lightColor", &lightColor[0], lightColor.size());
-   // }
-   // program.setUniformValue("lightCount", lightPosition.size());
-
-    for (auto entity : scene->entities)
-    {
-        if (entity->active && entity->lightSource != nullptr)
-        {
-            auto light = entity->lightSource;
-            //lightType.push_back(int(light->type));
-            program.setUniformValue("lightType", int(light->type));
-            //lightPosition.push_back(QVector3D(viewMatrix * entity->transform->matrix() * QVector4D(0.0, 0.0, 0.0, 1.0)));
-            program.setUniformValue("lightPosition", QVector3D(viewMatrix * entity->transform->matrix() * QVector4D(0.0, 0.0, 0.0, 1.0)));
-            //lightDirection.push_back(QVector3D(viewMatrix * entity->transform->matrix() * QVector4D(0.0, 1.0, 0.0, 0.0)));
-            program.setUniformValue("lightDirection", QVector3D(viewMatrix * entity->transform->matrix() * QVector4D(0.0, 1.0, 0.0, 0.0)));
-            QVector3D color(light->color.redF(), light->color.greenF(), light->color.blueF());
-            program.setUniformValue("lightColor", color * light->intensity);
-            //lightColor.push_back(color * light->intensity);
-            //for(auto submesh : resourceManager->quad->submeshes){
-              //  submesh->draw();
-            //}
-            resourceManager->quad->submeshes[0]->draw();
-        }
-    }
-
-    //for(auto submesh : resourceManager->quad->submeshes){
-    //    submesh->draw();
-    //}
+   for (auto entity : scene->entities)
+   {
+       if (entity->active && entity->lightSource != nullptr)
+       {
+           auto light = entity->lightSource;
+           //lightType.push_back(int(light->type));
+           program.setUniformValue("lightType", int(light->type));
+           //lightPosition.push_back(QVector3D(viewMatrix * entity->transform->matrix() * QVector4D(0.0, 0.0, 0.0, 1.0)));
+           program.setUniformValue("lightPosition", QVector3D(viewMatrix * entity->transform->matrix() * QVector4D(0.0, 0.0, 0.0, 1.0)));
+           //lightDirection.push_back(QVector3D(viewMatrix * entity->transform->matrix() * QVector4D(0.0, 1.0, 0.0, 0.0)));
+           program.setUniformValue("lightDirection", QVector3D(viewMatrix * entity->transform->matrix() * QVector4D(0.0, 1.0, 0.0, 0.0)));
+           QVector3D color(light->color.redF(), light->color.greenF(), light->color.blueF());
+           program.setUniformValue("lightColor", color * light->intensity);
+           //lightColor.push_back(color * light->intensity);
+           resourceManager->quad->submeshes[0]->draw();
+       }
+   }
 
     glDisable(GL_BLEND);
     glDepthMask(GL_TRUE);
