@@ -30,9 +30,18 @@ void main(void)
 {
    //Calculate lighting
    vec3 lighting = texture(gAlbedoSpec, vTexCoords).rgb * 0.1;
-   vec3 lightDir = normalize(lightPosition - texture(gPosition, vTexCoords).xyz);
-   vec3 diffuse = max(dot(texture(gNormal, vTexCoords).xyz, lightDir), 0.0) * texture(gAlbedoSpec, vTexCoords).rgb * lightColor;
-   lighting += diffuse;
+   if(lightType == 0){
+       vec3 lightDir = normalize(lightPosition - texture(gPosition, vTexCoords).xyz);
+       vec3 diffuse = max(dot(texture(gNormal, vTexCoords).xyz, lightDir), 0.0) * texture(gAlbedoSpec, vTexCoords).rgb * lightColor;
+       lighting += diffuse;
+   }
+   else{
+       vec3 diffuse = max(dot(texture(gNormal, vTexCoords).xyz, lightDirection), 0.0) * texture(gAlbedoSpec, vTexCoords).rgb * lightColor;
+       lighting += diffuse;
+   }
+   //vec3 lightDir = normalize(lightPosition - texture(gPosition, vTexCoords).xyz);
+   //vec3 diffuse = max(dot(texture(gNormal, vTexCoords).xyz, lightDir), 0.0) * texture(gAlbedoSpec, vTexCoords).rgb * lightColor;
+   //lighting += diffuse;
 
     outColor = vec4(lighting, 1.0);
 }

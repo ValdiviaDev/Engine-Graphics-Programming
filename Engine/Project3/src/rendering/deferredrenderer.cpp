@@ -59,7 +59,13 @@ void DeferredRenderer::passLights(const QMatrix4x4 &viewMatrix)
        {
            auto light = entity->lightSource;
            //lightType.push_back(int(light->type));
-           program.setUniformValue("lightType", int(light->type));
+           if(light->type == LightSource::Type::Point){
+               program.setUniformValue("lightType", 1);
+           }
+           else{
+               program.setUniformValue("lightType", 0);
+           }
+           //program.setUniformValue("lightType", int(light->type));
            //lightPosition.push_back(QVector3D(viewMatrix * entity->transform->matrix() * QVector4D(0.0, 0.0, 0.0, 1.0)));
            program.setUniformValue("lightPosition", QVector3D(viewMatrix * entity->transform->matrix() * QVector4D(0.0, 0.0, 0.0, 1.0)));
            //lightDirection.push_back(QVector3D(viewMatrix * entity->transform->matrix() * QVector4D(0.0, 1.0, 0.0, 0.0)));
