@@ -632,20 +632,20 @@ void DeferredRenderer::passBloom(){
     gl->glGenerateMipmap(GL_TEXTURE_2D);
 
     //Horizontal Blur
-   passBlur(fboBloom1, QVector2D(w/2,h/2), GL_COLOR_ATTACHMENT1, rtBright, LOD(0), horizontal);
-   passBlur(fboBloom2, QVector2D(w/4,h/4), GL_COLOR_ATTACHMENT1, rtBright, LOD(1), horizontal);
-   passBlur(fboBloom3, QVector2D(w/8,h/8), GL_COLOR_ATTACHMENT1, rtBright, LOD(2), horizontal);
-   passBlur(fboBloom4, QVector2D(w/16,h/16), GL_COLOR_ATTACHMENT1, rtBright, LOD(3), horizontal);
-   passBlur(fboBloom5, QVector2D(w/32,h/32), GL_COLOR_ATTACHMENT1, rtBright, LOD(4), horizontal);
+    passBlur(fboBloom1, QVector2D(w/2,h/2), GL_COLOR_ATTACHMENT1, rtBright, LOD(0), horizontal);
+    passBlur(fboBloom2, QVector2D(w/4,h/4), GL_COLOR_ATTACHMENT1, rtBright, LOD(1), horizontal);
+    passBlur(fboBloom3, QVector2D(w/8,h/8), GL_COLOR_ATTACHMENT1, rtBright, LOD(2), horizontal);
+    passBlur(fboBloom4, QVector2D(w/16,h/16), GL_COLOR_ATTACHMENT1, rtBright, LOD(3), horizontal);
+    passBlur(fboBloom5, QVector2D(w/32,h/32), GL_COLOR_ATTACHMENT1, rtBright, LOD(4), horizontal);
 
-   //Vertical Blur
-   passBlur(fboBloom1, QVector2D(w/2,h/2), GL_COLOR_ATTACHMENT1, rtBloomH, LOD(0), horizontal);
-   passBlur(fboBloom2, QVector2D(w/4,h/4), GL_COLOR_ATTACHMENT1, rtBloomH, LOD(1), horizontal);
-   passBlur(fboBloom3, QVector2D(w/8,h/8), GL_COLOR_ATTACHMENT1, rtBloomH, LOD(2), horizontal);
-   passBlur(fboBloom4, QVector2D(w/16,h/16), GL_COLOR_ATTACHMENT1, rtBloomH, LOD(3), horizontal);
-   passBlur(fboBloom5, QVector2D(w/32,h/32), GL_COLOR_ATTACHMENT1, rtBloomH, LOD(4), horizontal);
+    //Vertical Blur
+    passBlur(fboBloom1, QVector2D(w/2,h/2), GL_COLOR_ATTACHMENT1, rtBloomH, LOD(0), vertical);
+    passBlur(fboBloom2, QVector2D(w/4,h/4), GL_COLOR_ATTACHMENT1, rtBloomH, LOD(1), vertical);
+    passBlur(fboBloom3, QVector2D(w/8,h/8), GL_COLOR_ATTACHMENT1, rtBloomH, LOD(2), vertical);
+    passBlur(fboBloom4, QVector2D(w/16,h/16), GL_COLOR_ATTACHMENT1, rtBloomH, LOD(3), vertical);
+    passBlur(fboBloom5, QVector2D(w/32,h/32), GL_COLOR_ATTACHMENT1, rtBloomH, LOD(4), vertical);
 
-   passBloom2(fbo, GL_COLOR_ATTACHMENT3, rtBright, 4);
+    passBloom2(fbo, GL_COLOR_ATTACHMENT3, rtBright, 4);
 
 
 #undef LOD
