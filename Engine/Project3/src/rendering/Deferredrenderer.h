@@ -24,11 +24,13 @@ private:
 
     void passMeshes(Camera *camera);
     void passLights(const QMatrix4x4 &viewMatrix);
+    bool passGrid(Camera *camera);
     void passBlit();
 
     // Shaders
     ShaderProgram *deferredProgram = nullptr;
     ShaderProgram *lightProgram = nullptr;
+    ShaderProgram *gridProgram = nullptr;
     ShaderProgram *blitProgram;
 
     GLuint fboColor = 0;

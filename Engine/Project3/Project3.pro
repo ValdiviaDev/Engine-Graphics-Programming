@@ -210,6 +210,8 @@ DISTFILES += \
     res/shaders/deferred_shading.vert \
     res/shaders/forward_shading.frag \
     res/shaders/forward_shading.vert \
+    res/shaders/grid_shading.frag \
+    res/shaders/grid_shading.vert \
     res/shaders/light_shading.frag \
     res/shaders/light_shading.vert \
     res/shaders/texture_view.frag \

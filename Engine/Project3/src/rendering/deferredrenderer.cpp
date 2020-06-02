@@ -115,6 +115,12 @@ void DeferredRenderer::initialize()
     lightProgram->fragmentShaderFilename = "res/shaders/light_shading.frag";
     lightProgram->includeForSerialization = false;
 
+    gridProgram = resourceManager->createShaderProgram();
+    gridProgram->name = "Light shading";
+    gridProgram->vertexShaderFilename = "res/shaders/grid_shading.vert";
+    gridProgram->fragmentShaderFilename = "res/shaders/grid_shading.frag";
+    gridProgram->includeForSerialization = false;
+
     blitProgram = resourceManager->createShaderProgram();
     blitProgram->name = "Blit";
     blitProgram->vertexShaderFilename = "res/shaders/blit.vert";
@@ -231,6 +237,7 @@ void DeferredRenderer::render(Camera *camera)
     // Passes
     passMeshes(camera);
     passLights(camera->viewMatrix);
+    passGrid(camera);
 
     fbo->release();
 
@@ -317,11 +324,41 @@ void DeferredRenderer::passMeshes(Camera *camera)
             }
         }
 
-        //Pass the lights
-        //passLights(camera->viewMatrix);
-
         program.release();
     }
+}
+
+bool DeferredRenderer::passGrid(Camera *camera)
+{
+    QOpenGLShaderProgram &program = gridProgram->program;
+
+     GLenum draw_buffers = GL_COLOR_ATTACHMENT3;
+     gl->glDrawBuffer(draw_buffers);
+
+     glEnable(GL_BLEND);
+     glEnable(GL_DEPTH_TEST);
+     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+     if (program.bind())
+     {
+         QVector4D camera_parameters = camera->getLeftRightBottomTop();
+         program.setUniformValue("left", camera_parameters.x());
+         program.setUniformValue("right", camera_parameters.y());
+         program.setUniformValue("bottom", camera_parameters.z());
+         program.setUniformValue("top", camera_parameters.w());
+         program.setUniformValue("z_near", camera->znear);
+         program.setUniformValue("z_far", camera->zfar);
+         program.setUniformValue("worldMatrix", camera->worldMatrix);
+         program.setUniformValue("viewMatrix", camera->viewMatrix);
+         program.setUniformValue("projectionMatrix", camera->projectionMatrix);
+
+         resourceManager->quad->submeshes[0]->draw();
+
+         program.release();
+     }
+
+    glDisable(GL_BLEND);
+    return true;
 }
 
 void DeferredRenderer::passBlit()
