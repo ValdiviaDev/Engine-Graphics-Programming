@@ -18,18 +18,18 @@ layout(location=0) out vec4 outColor;
 
 void main(void)
 {
-    //Calculate lighting
-    vec3 lighting = gAlbedoSpec.rgb * 0.1;
-   // vec3 viewDir = normalize(viewPos - vPosition.xyz);
+   //Calculate lighting
+   vec3 lighting = texture(gAlbedoSpec, vTexCoords).rgb * 0.1;
+  // vec3 viewDir = normalize(viewPos - vPosition.xyz);
 
-    //for(int i = 0; i < lightCount; ++i)
-    //{
-      // Diffuse
-      vec3 lightDir = normalize(lightPosition/*[i]*/ - gPosition.xyz);
-      vec3 diffuse = max(dot(gNormal.xyz, lightDir), 0.0) * gAlbedoSpec.rgb * lightColor/*[i]*/;
-      lighting += diffuse;
-    //}
+   //for(int i = 0; i < lightCount; ++i)
+   //{
+     // Diffuse
+     vec3 lightDir = normalize(lightPosition/*[i]*/ - texture(gPosition, vTexCoords).xyz);
+     vec3 diffuse = max(dot(texture(gNormal, vTexCoords).xyz, lightDir), 0.0) * texture(gAlbedoSpec, vTexCoords).rgb * lightColor/*[i]*/;
+     lighting += diffuse;
+   //}
 
 
-    outColor = vec4(1.0,0.0,0.0,1.0);//vec4(lighting, 1.0);
+    outColor = vec4(lighting, 1.0);
 }

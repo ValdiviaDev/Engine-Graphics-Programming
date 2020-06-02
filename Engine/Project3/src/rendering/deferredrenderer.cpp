@@ -34,28 +34,28 @@ void DeferredRenderer::passLights(const QMatrix4x4 &viewMatrix)
 
     program.bind();
 
-    program.setUniformValue(program.uniformLocation("gPosition"), positionColor);
-    gl->glActiveTexture(GL_TEXTURE0);
-    gl->glBindTexture(GL_TEXTURE_2D, positionColor);
-    program.setUniformValue(program.uniformLocation("gNormal"), normalColor);
+    program.setUniformValue(program.uniformLocation("gPosition"), 1);
     gl->glActiveTexture(GL_TEXTURE1);
-    gl->glBindTexture(GL_TEXTURE_2D, normalColor);
-    program.setUniformValue(program.uniformLocation("gAlbedoSpec"), albedoColor);
+    gl->glBindTexture(GL_TEXTURE_2D, positionColor);
+    program.setUniformValue(program.uniformLocation("gNormal"), 2);
     gl->glActiveTexture(GL_TEXTURE2);
+    gl->glBindTexture(GL_TEXTURE_2D, normalColor);
+    program.setUniformValue(program.uniformLocation("gAlbedoSpec"), 0);
+    gl->glActiveTexture(GL_TEXTURE0);
     gl->glBindTexture(GL_TEXTURE_2D, albedoColor);
 
-    for (auto entity : scene->entities)
-    {
-        if (entity->active && entity->lightSource != nullptr)
-        {
-            auto light = entity->lightSource;
-            lightType.push_back(int(light->type));
-            lightPosition.push_back(QVector3D(viewMatrix * entity->transform->matrix() * QVector4D(0.0, 0.0, 0.0, 1.0)));
-            lightDirection.push_back(QVector3D(viewMatrix * entity->transform->matrix() * QVector4D(0.0, 1.0, 0.0, 0.0)));
-            QVector3D color(light->color.redF(), light->color.greenF(), light->color.blueF());
-            lightColor.push_back(color * light->intensity);
-        }
-    }
+   //for (auto entity : scene->entities)
+   //{
+   //    if (entity->active && entity->lightSource != nullptr)
+   //    {
+   //        auto light = entity->lightSource;
+   //        lightType.push_back(int(light->type));
+   //        lightPosition.push_back(QVector3D(viewMatrix * entity->transform->matrix() * QVector4D(0.0, 0.0, 0.0, 1.0)));
+   //        lightDirection.push_back(QVector3D(viewMatrix * entity->transform->matrix() * QVector4D(0.0, 1.0, 0.0, 0.0)));
+   //        QVector3D color(light->color.redF(), light->color.greenF(), light->color.blueF());
+   //        lightColor.push_back(color * light->intensity);
+   //    }
+   //}
    // if (lightPosition.size() > 0)
    // {
    //     program.setUniformValueArray("lightType", &lightType[0], lightType.size());
@@ -79,9 +79,10 @@ void DeferredRenderer::passLights(const QMatrix4x4 &viewMatrix)
             QVector3D color(light->color.redF(), light->color.greenF(), light->color.blueF());
             program.setUniformValue("lightColor", color * light->intensity);
             //lightColor.push_back(color * light->intensity);
-            for(auto submesh : resourceManager->quad->submeshes){
-                submesh->draw();
-            }
+            //for(auto submesh : resourceManager->quad->submeshes){
+              //  submesh->draw();
+            //}
+            resourceManager->quad->submeshes[0]->draw();
         }
     }
 
