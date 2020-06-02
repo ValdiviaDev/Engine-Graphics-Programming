@@ -25,12 +25,14 @@ private:
     void passMeshes(Camera *camera);
     void passLights(const QMatrix4x4 &viewMatrix);
     bool passGrid(Camera *camera);
+    void passBackground(Camera *camera);
     void passBlit();
 
     // Shaders
     ShaderProgram *deferredProgram = nullptr;
     ShaderProgram *lightProgram = nullptr;
     ShaderProgram *gridProgram = nullptr;
+    ShaderProgram *backgroundProgram = nullptr;
     ShaderProgram *blitProgram;
 
     GLuint fboColor = 0;
@@ -39,6 +41,9 @@ private:
     GLuint normalColor = 0;
     GLuint fboDepth = 0;
     FramebufferObject *fbo = nullptr;
+
+    int viewportWidth = 0;
+    int viewportHeight = 0;
 };
 
 #endif // DEFERREDRENDERER_H

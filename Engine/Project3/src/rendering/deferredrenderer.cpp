@@ -44,6 +44,14 @@ void DeferredRenderer::passLights(const QMatrix4x4 &viewMatrix)
     gl->glActiveTexture(GL_TEXTURE0);
     gl->glBindTexture(GL_TEXTURE_2D, albedoColor);
 
+   // program.setUniformValue(program.uniformLocation("camera_position"), camera->position);
+   // program.setUniformValue(program.uniformLocation("projection_matrix_transposed"), camera->projectionMatrix.inverted());
+   // program.setUniformValue(program.uniformLocation("view_matrix_transposed"), camera->viewMatrix.inverted());
+   // program.setUniformValue(program.uniformLocation("viewport_width"), viewportWidth);
+   // program.setUniformValue(program.uniformLocation("viewport_height"), viewportHeight);
+   // program.setUniformValue(program.uniformLocation("near"), camera->znear);
+   // program.setUniformValue(program.uniformLocation("far"), camera->zfar);
+
     int lights_count = 0;
    for (auto entity : scene->entities)
    {
@@ -58,6 +66,7 @@ void DeferredRenderer::passLights(const QMatrix4x4 &viewMatrix)
            program.setUniformValue("lightDirection", QVector3D(viewMatrix * entity->transform->matrix() * QVector4D(0.0, 1.0, 0.0, 0.0)));
            QVector3D color(light->color.redF(), light->color.greenF(), light->color.blueF());
            program.setUniformValue("lightColor", color * light->intensity);
+           //program.setUniformValue("lightIntensity", light->intensity);
            //lightColor.push_back(color * light->intensity);
            resourceManager->quad->submeshes[0]->draw();
            lights_count++;
@@ -116,10 +125,16 @@ void DeferredRenderer::initialize()
     lightProgram->includeForSerialization = false;
 
     gridProgram = resourceManager->createShaderProgram();
-    gridProgram->name = "Light shading";
+    gridProgram->name = "Grid shading";
     gridProgram->vertexShaderFilename = "res/shaders/grid_shading.vert";
     gridProgram->fragmentShaderFilename = "res/shaders/grid_shading.frag";
     gridProgram->includeForSerialization = false;
+
+    backgroundProgram = resourceManager->createShaderProgram();
+    backgroundProgram->name = "Background shading";
+    backgroundProgram->vertexShaderFilename = "res/shaders/background_shading.vert";
+    backgroundProgram->fragmentShaderFilename = "res/shaders/background_shading.frag";
+    backgroundProgram->includeForSerialization = false;
 
     blitProgram = resourceManager->createShaderProgram();
     blitProgram->name = "Blit";
@@ -141,6 +156,8 @@ void DeferredRenderer::finalize()
 
 void DeferredRenderer::resize(int w, int h)
 {
+    viewportWidth = w;
+    viewportHeight = h;
     OpenGLErrorGuard guard("DeferredRenderer::resize()");
 
     // Regenerate render targets
@@ -235,9 +252,11 @@ void DeferredRenderer::render(Camera *camera)
     glDrawBuffer(0);
 
     // Passes
+    //passBackground(camera);
     passMeshes(camera);
     passLights(camera->viewMatrix);
     passGrid(camera);
+    //passBackground(camera);
 
     fbo->release();
 
@@ -356,9 +375,35 @@ bool DeferredRenderer::passGrid(Camera *camera)
 
          program.release();
      }
-
+    glDisable(GL_DEPTH_TEST);
     glDisable(GL_BLEND);
     return true;
+}
+
+void DeferredRenderer::passBackground(Camera *camera)
+{
+    QOpenGLShaderProgram &program = backgroundProgram->program;
+
+    GLenum draw_buffers = GL_COLOR_ATTACHMENT3;
+    glDrawBuffer(draw_buffers);
+    gl->glDisable(GL_DEPTH_TEST);
+    if (program.bind())
+    {
+        QVector4D viewport_parameters = camera->getLeftRightBottomTop();
+        program.setUniformValue("viewportSize", QVector2D(viewportWidth, viewportHeight));
+        program.setUniformValue("left", viewport_parameters.x());
+        program.setUniformValue("right", viewport_parameters.y());
+        program.setUniformValue("bottom", viewport_parameters.z());
+        program.setUniformValue("top", viewport_parameters.w());
+        program.setUniformValue("znear", camera->znear);
+        program.setUniformValue("worldMatrix", camera->worldMatrix);
+        program.setUniformValue("backgroundColor", QVector4D(0.2,0.2,0.2,1.0));
+
+        resourceManager->quad->submeshes[0]->draw();
+
+        program.release();
+    }
+    gl->glEnable(GL_DEPTH_TEST);
 }
 
 void DeferredRenderer::passBlit()
