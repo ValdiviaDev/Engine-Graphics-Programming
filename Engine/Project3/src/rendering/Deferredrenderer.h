@@ -26,6 +26,7 @@ private:
     void passLights(const QMatrix4x4 &viewMatrix);
     bool passGrid(Camera *camera);
     void passBackground(Camera *camera);
+    void passOutline();
     void passBlit();
 
     // Shaders
@@ -33,6 +34,7 @@ private:
     ShaderProgram *lightProgram = nullptr;
     ShaderProgram *gridProgram = nullptr;
     ShaderProgram *backgroundProgram = nullptr;
+    ShaderProgram *outlineProgram = nullptr;
     ShaderProgram *blitProgram;
 
     GLuint fboColor = 0;
@@ -40,6 +42,7 @@ private:
     GLuint positionColor = 0;
     GLuint normalColor = 0;
     GLuint fboDepth = 0;
+    GLuint selectionColor = 0;
     FramebufferObject *fbo = nullptr;
 
     int viewportWidth = 0;

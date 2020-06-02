@@ -17,13 +17,7 @@ uniform sampler2D emissiveTexture;
 uniform sampler2D normalTexture;
 uniform sampler2D bumpTexture;
 
-// Lights
-#define MAX_LIGHTS 8
-uniform int lightType[MAX_LIGHTS];
-uniform vec3 lightPosition[MAX_LIGHTS];
-uniform vec3 lightDirection[MAX_LIGHTS];
-uniform vec3 lightColor[MAX_LIGHTS];
-uniform int lightCount;
+uniform bool is_selected;
 
 in vec4 vPosition;
 in vec4 vNormal;
@@ -33,6 +27,7 @@ in vec2 vTexCoords;
 layout(location=0) out vec4 outAlbedoSpecular;
 layout(location=1) out vec4 outPosition;
 layout(location=2) out vec4 outNormal;
+layout(location=3) out vec4 outSelection;
 
 void main(void){
 
@@ -60,5 +55,10 @@ void main(void){
     outPosition = vPosition;
     outNormal = vNormal;
     outAlbedoSpecular = albedoSpecular;
+
+    if(is_selected)
+            outSelection = vec4(1.0);
+        else outSelection = vec4(0.0);
+
 
 }

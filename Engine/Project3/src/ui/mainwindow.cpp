@@ -326,7 +326,10 @@ void MainWindow::onSceneChanged()
 void MainWindow::onEntityAdded(Entity * entity)
 {
     inspectorWidget->showEntity(entity);
+    if(camera->selected_entity != nullptr)
+        camera->selected_entity->is_selected = false;
     camera->selected_entity = entity;
+    entity->is_selected = true;
     updateEverything();
 }
 
@@ -341,14 +344,20 @@ void MainWindow::onEntitySelectedFromHierarchy(Entity *entity)
 {
     selection->onEntitySelectedFromEditor(entity);
     inspectorWidget->showEntity(entity);
+    if(camera->selected_entity != nullptr)
+        camera->selected_entity->is_selected = false;
     camera->selected_entity = entity;
+    entity->is_selected = true;
     openGLWidget->update();
 }
 
 void MainWindow::onEntitySelectedFromSceneView(Entity *entity)
 {
     inspectorWidget->showEntity(entity);
+    if(camera->selected_entity != nullptr)
+        camera->selected_entity->is_selected = false;
     camera->selected_entity = entity;
+    entity->is_selected = true;
     openGLWidget->update();
 }
 

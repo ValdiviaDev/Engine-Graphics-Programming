@@ -35,6 +35,7 @@ public:
     };
 
     bool active = true;
+    bool is_selected = false;
 };
 
 #endif // ENTITY_H

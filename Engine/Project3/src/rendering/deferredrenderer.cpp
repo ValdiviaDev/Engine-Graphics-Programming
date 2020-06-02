@@ -142,6 +142,12 @@ void DeferredRenderer::initialize()
     backgroundProgram->fragmentShaderFilename = "res/shaders/background_shading.frag";
     backgroundProgram->includeForSerialization = false;
 
+    outlineProgram = resourceManager->createShaderProgram();
+    outlineProgram->name = "Outline shading";
+    outlineProgram->vertexShaderFilename = "res/shaders/outline_shading.vert";
+    outlineProgram->fragmentShaderFilename = "res/shaders/outline_shading.frag";
+    outlineProgram->includeForSerialization = false;
+
     blitProgram = resourceManager->createShaderProgram();
     blitProgram->name = "Blit";
     blitProgram->vertexShaderFilename = "res/shaders/blit.vert";
@@ -208,6 +214,16 @@ void DeferredRenderer::resize(int w, int h)
     gl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     gl->glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
 
+    if (selectionColor == 0) gl->glDeleteTextures(1, &selectionColor);
+    gl->glGenTextures(1, &selectionColor);
+    gl->glBindTexture(GL_TEXTURE_2D, selectionColor);
+    gl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    gl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    gl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+    gl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    gl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    gl->glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+
     if (fboDepth == 0) gl->glDeleteTextures(1, &fboDepth);
     gl->glGenTextures(1, &fboDepth);
     gl->glBindTexture(GL_TEXTURE_2D, fboDepth);
@@ -226,13 +242,15 @@ void DeferredRenderer::resize(int w, int h)
     fbo->addColorAttachment(1, positionColor);
     fbo->addColorAttachment(2, normalColor);
     fbo->addColorAttachment(3, fboColor);
+    fbo->addColorAttachment(4, selectionColor);
     fbo->addDepthAttachment(fboDepth);
 
-    unsigned int atachment[4] = { GL_COLOR_ATTACHMENT0,
+    unsigned int atachment[5] = { GL_COLOR_ATTACHMENT0,
                                   GL_COLOR_ATTACHMENT1,
                                   GL_COLOR_ATTACHMENT2,
-                                  GL_COLOR_ATTACHMENT3};
-    gl->glDrawBuffers(4, atachment);
+                                  GL_COLOR_ATTACHMENT3,
+                                  GL_COLOR_ATTACHMENT4};
+    gl->glDrawBuffers(5, atachment);
 
     fbo->checkStatus();
     fbo->release();
@@ -244,8 +262,8 @@ void DeferredRenderer::render(Camera *camera)
 
     fbo->bind();
 
-    GLenum buffers[] = {GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3 }; //Albedo, Normals
-    gl->glDrawBuffers(4, buffers);
+    GLenum buffers[] = {GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3, GL_COLOR_ATTACHMENT4 }; //Albedo, Normals
+    gl->glDrawBuffers(5, buffers);
 
     // Clear color
     gl->glClearDepth(1.0);
@@ -261,6 +279,7 @@ void DeferredRenderer::render(Camera *camera)
     //passBackground(camera);
     passMeshes(camera);
     passLights(camera->viewMatrix);
+    passOutline();
     passGrid(camera);
     //passBackground(camera);
 
@@ -275,8 +294,8 @@ void DeferredRenderer::passMeshes(Camera *camera)
 {
     QOpenGLShaderProgram &program = deferredProgram->program;
 
-    GLenum buffers[] = {GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2 }; //Albedo, Normals
-    gl->glDrawBuffers(3, buffers);
+    GLenum buffers[] = {GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT4 }; //Albedo, Normals
+    gl->glDrawBuffers(4, buffers);
 
     if (program.bind())
     {
@@ -292,6 +311,7 @@ void DeferredRenderer::passMeshes(Camera *camera)
             if (entity->active)
             {
                 if (entity->meshRenderer != nullptr) { meshRenderers.push_back(entity->meshRenderer); }
+
             }
         }
 
@@ -309,6 +329,7 @@ void DeferredRenderer::passMeshes(Camera *camera)
                 program.setUniformValue("worldMatrix", worldMatrix);
                 program.setUniformValue("worldViewMatrix", worldViewMatrix);
                 program.setUniformValue("normalMatrix", normalMatrix);
+                program.setUniformValue("is_selected", meshRenderer->entity->is_selected);
 
                 int materialIndex = 0;
                 for (auto submesh : mesh->submeshes)
@@ -410,6 +431,32 @@ void DeferredRenderer::passBackground(Camera *camera)
         program.release();
     }
     gl->glEnable(GL_DEPTH_TEST);
+}
+
+void DeferredRenderer::passOutline()
+{
+    QOpenGLShaderProgram &program = outlineProgram->program;
+
+    GLenum draw_buffers = GL_COLOR_ATTACHMENT3;
+    glDrawBuffer(draw_buffers);
+
+    glDisable(GL_DEPTH_TEST);
+
+    if (program.bind())
+    {
+        //std::cout<<main_buffer->GetSelectionTexture()<<std::endl;
+
+        gl->glActiveTexture(GL_TEXTURE0);
+        gl->glBindTexture(GL_TEXTURE_2D, selectionColor);
+        program.setUniformValue(program.uniformLocation("mask"), 0);
+        //program_selection.setUniformValue(program_selection.uniformLocation("mask"));
+
+        resourceManager->quad->submeshes[0]->draw();
+        //std::cout<<"hol2a1"<<std::endl;
+        program.release();
+    }
+
+   glEnable(GL_DEPTH_TEST);
 }
 
 void DeferredRenderer::passBlit()
