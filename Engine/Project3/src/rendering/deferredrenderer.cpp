@@ -381,7 +381,7 @@ void DeferredRenderer::render(Camera *camera)
     glDrawBuffer(0);
 
     // Passes
-    //passBackground(camera);
+    passBackground(camera);
     passMeshes(camera);
     passLights(camera->viewMatrix);
     passOutline();
@@ -530,7 +530,7 @@ void DeferredRenderer::passBackground(Camera *camera)
         program.setUniformValue("top", viewport_parameters.w());
         program.setUniformValue("znear", camera->znear);
         program.setUniformValue("worldMatrix", camera->worldMatrix);
-        program.setUniformValue("backgroundColor", QVector4D(0.2,0.2,0.2,1.0));
+        program.setUniformValue("backgroundColor", miscSettings->backgroundColor);
 
         resourceManager->quad->submeshes[0]->draw();
 
