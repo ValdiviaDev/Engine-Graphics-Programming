@@ -28,72 +28,29 @@ layout(location=0) out vec4 outColor;
 
 void main(void)
 {
-   //Calculate lighting
-   vec3 lighting = texture(gAlbedoSpec, vTexCoords).rgb * 0.1;
-   if(lightType == 0){
-       vec3 lightDir = normalize(lightPosition - texture(gPosition, vTexCoords).xyz);
-       vec3 diffuse = max(dot(texture(gNormal, vTexCoords).xyz, lightDir), 0.0) * texture(gAlbedoSpec, vTexCoords).rgb * lightColor;
-       lighting += diffuse;
-   }
-   else{
-       vec3 diffuse = max(dot(texture(gNormal, vTexCoords).xyz, lightDirection), 0.0) * texture(gAlbedoSpec, vTexCoords).rgb * lightColor;
-       lighting += diffuse;
-   }
-   //vec3 lightDir = normalize(lightPosition - texture(gPosition, vTexCoords).xyz);
-   //vec3 diffuse = max(dot(texture(gNormal, vTexCoords).xyz, lightDir), 0.0) * texture(gAlbedoSpec, vTexCoords).rgb * lightColor;
-   //lighting += diffuse;
+    // retrieve data from gbuffer
+    vec3 FragPos = texture(gPosition, vTexCoords).rgb;
+    vec3 Normal = texture(gNormal, vTexCoords).rgb;
+    vec3 Diffuse = texture(gAlbedoSpec, vTexCoords).rgb;
+    //float AmbientOcclusion = texture(ssao, TexCoords).r;
+
+    // blinn-phong (in view-space)
+    vec3 ambient = vec3(0.3 * Diffuse /** AmbientOcclusion*/); // here we add occlusion factor
+    vec3 lighting  = ambient;
+    vec3 viewDir  = normalize(-FragPos); // viewpos is (0.0.0) in view-space
+    // diffuse
+    vec3 lightDir = normalize(lightPosition - FragPos);
+    vec3 diffuse = max(dot(Normal, lightDir), 0.0) * Diffuse * lightColor;
+    // specular
+    vec3 halfwayDir = normalize(lightDir + viewDir);
+    float spec = pow(max(dot(Normal, halfwayDir), 0.0), 8.0);
+    vec3 specular = lightColor * spec;
+    // attenuation
+    float dist = length(lightPosition - FragPos);
+    //float attenuation = 1.0 / (1.0 + light.Linear * dist + light.Quadratic * dist * dist);
+    //diffuse  *= attenuation;
+    //specular *= attenuation;
+    lighting += diffuse + specular;
 
     outColor = vec4(lighting, 1.0);
 }
-
-//vec3 FragmentToWorld()
-//{
-//        //World Depth
-//        float depth_value = texture(gDepth, vTexCoords).z;
-//
-//        //Transform FragmentPos to WorldPos
-//        vec2 viewport_size = vec2(viewport_width, viewport_height);
-//        normalized_device_coordinate.xy = ((2.0 * gl_FragCoord.xy) / viewport_size.xy) - 1;
-//        normalized_device_coordinate.z = (depth_value * 2) - 1;
-//        normalized_device_coordinate.w = 1.0;
-//
-//        vec4 projpos_frag = projection_matrix_transposed  * normalized_device_coordinate;
-//        projpos_frag = projpos_frag / projpos_frag.w;
-//
-//        vec3 world_space_fragment = (view_matrix_transposed * projpos_frag).xyz;
-//
-//        return world_space_fragment;
-//}
-//
-//vec4 CalculateDirectional()
-//{
-//        vec3 light_dir_normalized = normalize(lightDirection);
-//
-//        vec4 albedo_color = texture(gAlbedoSpec, vTexCoords);
-//        vec3 normal_vector = texture(gNormal, vTexCoords).xyz;
-//        vec3 eye_dir = normalize(camera_position - FragmentToWorld());
-//        vec3 H = normalize(eye_dir + light_dir_normalized);
-//
-//        vec4 ambient_color =  vec4(albedo_color.rgb * 0.1, 1.0) * lightColor;
-//        vec4 difuse_color = albedo_color * max(dot(light_dir_normalized, normal_vector), 0.0) * lightColor;
-//        vec4 specular =  0.5 * pow(max(dot(normal_vector, H), 0.0), 32)  * lightColor;
-//
-//        vec4 final_color = vec4((ambient_color + difuse_color + specular).rgb * (lightIntensity * 0.1), 1.0);
-//
-//        return final_color;
-//}
-//
-//vec4 CalculatePoint()
-//{
-//        return vec4(1.0);
-//}
-//
-//void main(void)
-//{
-//        if(lightType == 0)
-//                outColor = CalculateDirectional();
-//
-//        if(lightType == 1)
-//                outColor = CalculatePoint();
-//}
-
