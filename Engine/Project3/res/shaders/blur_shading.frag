@@ -27,8 +27,9 @@ void main(void)
     float weight = 0.0;
     for(int i = kernelBegin; i <= kernelEnd; i++){
         float currentWeight = smoothstep(float(kernelRadius), 0.0, float(abs(i)));
-        //vec2 finalTexCoords = vTexCoords + i * direction * texelSize;
-        //finalTexCoords += textureLod(colorMap, finalTexCoords, inputLod) * currentWeight;
+        vec2 finalTexCoords = vTexCoords + i * direction * texelSize;
+        finalTexCoords += clamp(finalTexCoords, margin1, margin2);
+        outColor += textureLod(colorMap, finalTexCoords, inputLod) * currentWeight;
         weight += currentWeight;
     }
     outColor = outColor/weight;
