@@ -35,6 +35,11 @@ private:
     void passBlur(FramebufferObject *pfbo, const QVector2D &viewportSize, GLenum colorAttachment, GLuint inputTexture, GLuint inputLod, const QVector2D &direction);
     void passBloom2(FramebufferObject *current_fbo, GLenum colorAttachment, GLuint inputTexture, int maxLod);
 
+    void initializeSSAO();
+    void passSSAO();
+    void initializeSSAOBlur();
+    void passSSAOBlur();
+
     // Shaders
     ShaderProgram *deferredProgram = nullptr;
     ShaderProgram *lightProgram = nullptr;
@@ -45,6 +50,8 @@ private:
     ShaderProgram *blitBrightestPixelProgram = nullptr;
     ShaderProgram *blur = nullptr;
     ShaderProgram *bloomProgram = nullptr;
+    ShaderProgram *ssaoProgram = nullptr;
+    ShaderProgram *ssaoBlurProgram = nullptr;
 
     GLuint fboColor = 0;
     GLuint albedoColor = 0;
@@ -52,6 +59,9 @@ private:
     GLuint normalColor = 0;
     GLuint fboDepth = 0;
     GLuint selectionColor = 0;
+    GLuint ssaoNoiseTexture = 0;
+    GLuint ssaoColorBuffer = 0;
+    GLuint ssaoBlurColor = 0;
 
     GLuint rtBright; //Brightest pixel and vertical blur
     GLuint rtBloomH; //Horizontal Blur
@@ -63,6 +73,9 @@ private:
     FramebufferObject *fboBloom3 = nullptr;
     FramebufferObject *fboBloom4 = nullptr;
     FramebufferObject *fboBloom5 = nullptr;
+
+    FramebufferObject *ssaoFBO = nullptr;
+    FramebufferObject *ssaoBlurFBO = nullptr;
 
     int viewportWidth = 0;
     int viewportHeight = 0;

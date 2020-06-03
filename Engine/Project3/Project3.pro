@@ -224,6 +224,10 @@ DISTFILES += \
     res/shaders/light_shading.vert \
     res/shaders/outline_shading.frag \
     res/shaders/outline_shading.vert \
+    res/shaders/ssao_blur_shading.frag \
+    res/shaders/ssao_blur_shading.vert \
+    res/shaders/ssao_shading.frag \
+    res/shaders/ssao_shading.vert \
     res/shaders/texture_view.frag \
     res/shaders/texture_view.vert
 

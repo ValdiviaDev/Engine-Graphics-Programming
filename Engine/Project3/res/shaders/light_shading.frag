@@ -4,16 +4,7 @@ uniform sampler2D gPosition;
 //uniform sampler2D gDepth;
 uniform sampler2D gNormal;
 uniform sampler2D gAlbedoSpec;
-
-//camera
-//vec4 normalized_device_coordinate;
-//uniform int viewport_width;
-//uniform int viewport_height;
-//uniform float near;
-//uniform float far;
-//uniform mat4 projection_matrix_transposed;
-//uniform mat4 view_matrix_transposed;
-//uniform vec3 camera_position;
+uniform sampler2D ssao;
 
 // Lights
 uniform int lightType;
@@ -32,10 +23,10 @@ void main(void)
     vec3 FragPos = texture(gPosition, vTexCoords).rgb;
     vec3 Normal = texture(gNormal, vTexCoords).rgb;
     vec3 Diffuse = texture(gAlbedoSpec, vTexCoords).rgb;
-    //float AmbientOcclusion = texture(ssao, TexCoords).r;
+    float AmbientOcclusion = texture(ssao, vTexCoords).r;
 
     // blinn-phong (in view-space)
-    vec3 ambient = vec3(0.3 * Diffuse /** AmbientOcclusion*/); // here we add occlusion factor
+    vec3 ambient = vec3(0.3 * Diffuse * AmbientOcclusion); // here we add occlusion factor
     vec3 lighting  = ambient;
     vec3 viewDir  = normalize(-FragPos); // viewpos is (0.0.0) in view-space
     // diffuse

@@ -14,6 +14,7 @@
 #include <QVector3D>
 #include <QOpenGLShaderProgram>
 #include <QOpenGLTexture>
+#include <random>
 
 #define MIPMAP_BASE_LEVEL 0
 #define MIPMAP_MAX_LEVEL 4
@@ -45,14 +46,9 @@ void DeferredRenderer::passLights(const QMatrix4x4 &viewMatrix)
     program.setUniformValue(program.uniformLocation("gAlbedoSpec"), 0);
     gl->glActiveTexture(GL_TEXTURE0);
     gl->glBindTexture(GL_TEXTURE_2D, albedoColor);
-
-   // program.setUniformValue(program.uniformLocation("camera_position"), camera->position);
-   // program.setUniformValue(program.uniformLocation("projection_matrix_transposed"), camera->projectionMatrix.inverted());
-   // program.setUniformValue(program.uniformLocation("view_matrix_transposed"), camera->viewMatrix.inverted());
-   // program.setUniformValue(program.uniformLocation("viewport_width"), viewportWidth);
-   // program.setUniformValue(program.uniformLocation("viewport_height"), viewportHeight);
-   // program.setUniformValue(program.uniformLocation("near"), camera->znear);
-   // program.setUniformValue(program.uniformLocation("far"), camera->zfar);
+    program.setUniformValue(program.uniformLocation("ssao"), 3);
+    gl->glActiveTexture(GL_TEXTURE3);
+    gl->glBindTexture(GL_TEXTURE_2D, ssaoBlurColor);
 
     int lights_count = 0;
    for (auto entity : scene->entities)
@@ -117,6 +113,8 @@ DeferredRenderer::~DeferredRenderer()
     delete fboBloom3;
     delete fboBloom4;
     delete fboBloom5;
+    delete ssaoFBO;
+    delete ssaoBlurFBO;
 }
 
 void DeferredRenderer::initialize()
@@ -163,16 +161,28 @@ void DeferredRenderer::initialize()
     blitBrightestPixelProgram->includeForSerialization = false;
 
     blur = resourceManager->createShaderProgram();
-    blur->name = "Blit Bright Pixel shading";
+    blur->name = "Blur shading";
     blur->vertexShaderFilename = "res/shaders/blur_shading.vert";
     blur->fragmentShaderFilename = "res/shaders/blur_shading.frag";
     blur->includeForSerialization = false;
 
     bloomProgram = resourceManager->createShaderProgram();
-    bloomProgram->name = "Blit Bright Pixel shading";
+    bloomProgram->name = "Bloom shading";
     bloomProgram->vertexShaderFilename = "res/shaders/bloom_shading.vert";
     bloomProgram->fragmentShaderFilename = "res/shaders/bloom_shading.frag";
     bloomProgram->includeForSerialization = false;
+
+    ssaoProgram = resourceManager->createShaderProgram();
+    ssaoProgram->name = "SSAO shading";
+    ssaoProgram->vertexShaderFilename = "res/shaders/ssao_shading.vert";
+    ssaoProgram->fragmentShaderFilename = "res/shaders/ssao_shading.frag";
+    ssaoProgram->includeForSerialization = false;
+
+    ssaoBlurProgram = resourceManager->createShaderProgram();
+    ssaoBlurProgram->name = "SSAO Blur Ambient Oclusion shading";
+    ssaoBlurProgram->vertexShaderFilename = "res/shaders/ssao_blur_shading.vert";
+    ssaoBlurProgram->fragmentShaderFilename = "res/shaders/ssao_blur_shading.frag";
+    ssaoBlurProgram->includeForSerialization = false;
 
     blitProgram = resourceManager->createShaderProgram();
     blitProgram->name = "Blit";
@@ -194,6 +204,10 @@ void DeferredRenderer::initialize()
     fboBloom4->create();
     fboBloom5 = new FramebufferObject;
     fboBloom5->create();
+    ssaoFBO = new FramebufferObject;
+    ssaoFBO->create();
+    ssaoBlurFBO = new FramebufferObject;
+    ssaoBlurFBO->create();
 }
 
 void DeferredRenderer::finalize()
@@ -358,6 +372,7 @@ void DeferredRenderer::resize(int w, int h)
     fbo->release();
 
     initializeBloom(w, h);
+    initializeSSAO();
 
 }
 
@@ -383,6 +398,7 @@ void DeferredRenderer::render(Camera *camera)
     // Passes
     passBackground(camera);
     passMeshes(camera);
+    passSSAO();
     passLights(camera->viewMatrix);
     if(miscSettings->show_selection_outline){
         passOutline();
@@ -682,6 +698,127 @@ void DeferredRenderer::passBloom2(FramebufferObject *current_fbo, GLenum colorAt
     }
     glDisable(GL_BLEND);
     current_fbo->release();
+}
+
+float lerp(float a, float b, float f)
+{
+    return a + f * (b - a);
+}
+
+void DeferredRenderer::initializeSSAO(){
+    std::uniform_real_distribution<float> randomFloats(0.0, 1.0); // random floats between [0.0, 1.0]
+    std::default_random_engine generator;
+
+    ssaoFBO->bind();
+
+    std::vector<QVector3D> ssaoNoise;
+    for (unsigned int i = 0; i < 16; i++)
+    {
+        QVector3D noise(
+            randomFloats(generator) * 2.0 - 1.0,
+            randomFloats(generator) * 2.0 - 1.0,
+            0.0f);
+        ssaoNoise.push_back(noise);
+    }
+
+    glGenTextures(1, &ssaoNoiseTexture);
+    glBindTexture(GL_TEXTURE_2D, ssaoNoiseTexture);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, 4, 4, 0, GL_RGB, GL_FLOAT, &ssaoNoise[0]);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+    glGenTextures(1, &ssaoColorBuffer);
+    glBindTexture(GL_TEXTURE_2D, ssaoColorBuffer);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, viewportWidth, viewportHeight, 0, GL_RED, GL_FLOAT, NULL);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+    ssaoFBO->addColorAttachment(0,ssaoColorBuffer,0);
+    ssaoFBO->addColorAttachment(1, ssaoNoiseTexture, 0);
+    ssaoFBO->checkStatus();
+    ssaoFBO->release();
+
+    initializeSSAOBlur();
+}
+
+void DeferredRenderer::initializeSSAOBlur(){
+    ssaoBlurFBO->bind();
+
+    glGenTextures(1, &ssaoBlurColor);
+    glBindTexture(GL_TEXTURE_2D, ssaoBlurColor);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, viewportWidth, viewportHeight, 0, GL_RED, GL_FLOAT, NULL);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+    ssaoBlurFBO->addColorAttachment(0, ssaoBlurColor, 0);
+    ssaoBlurFBO->checkStatus();
+    ssaoBlurFBO->release();
+}
+
+void DeferredRenderer::passSSAO(){
+     std::uniform_real_distribution<float> randomFloats(0.0, 1.0); // random floats between [0.0, 1.0]
+     std::default_random_engine generator;
+     std::vector<QVector3D> ssaoKernel;
+     for (unsigned int i = 0; i < 64; ++i)
+     {
+         QVector3D sample(
+             randomFloats(generator) * 2.0 - 1.0,
+             randomFloats(generator) * 2.0 - 1.0,
+             randomFloats(generator)
+         );
+         float scale = (float)i / 64.0;
+         scale   = lerp(0.1f, 1.0f, scale * scale);
+         sample.normalize();
+         sample *= randomFloats(generator);
+         sample *= scale;
+         ssaoKernel.push_back(sample);
+     }
+
+     QOpenGLShaderProgram &program = ssaoProgram->program;
+
+     ssaoFBO->bind();
+     glClear(GL_COLOR_BUFFER_BIT);
+
+     GLenum draw_buffers = GL_COLOR_ATTACHMENT0;
+     gl->glDrawBuffer(draw_buffers);
+
+     if(program.bind()){
+        gl->glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, positionColor);
+        program.setUniformValue(program.uniformLocation("gPosition"), 0);
+        gl->glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, normalColor);
+        program.setUniformValue(program.uniformLocation("gNormal"), 1);
+        gl->glActiveTexture(GL_TEXTURE2);
+        glBindTexture(GL_TEXTURE_2D, ssaoNoiseTexture);
+        program.setUniformValue(program.uniformLocation("texNoise"), 2);
+        program.setUniformValueArray("samples", &ssaoKernel[0], 64);
+        program.setUniformValue("projection", camera->projectionMatrix);
+        resourceManager->quad->submeshes[0]->draw();
+        program.release();
+     }
+     ssaoFBO->release();
+     passSSAOBlur();
+     fbo->bind();
+
+}
+
+void DeferredRenderer::passSSAOBlur(){
+    QOpenGLShaderProgram &program = ssaoBlurProgram->program;
+    ssaoBlurFBO->bind();
+
+    if(program.bind()){
+        gl->glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, ssaoColorBuffer);
+        program.setUniformValue(program.uniformLocation("ssaoInput"), 0);
+        resourceManager->quad->submeshes[0]->draw();
+        program.release();
+    }
+
+    ssaoBlurFBO->release();
+
 }
 
 void DeferredRenderer::passBlit()
