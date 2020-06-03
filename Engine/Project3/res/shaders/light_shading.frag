@@ -6,6 +6,8 @@ uniform sampler2D gNormal;
 uniform sampler2D gAlbedoSpec;
 uniform sampler2D ssao;
 
+uniform bool use_ssao;
+
 // Lights
 uniform int lightType;
 uniform vec3 lightPosition;
@@ -23,10 +25,19 @@ void main(void)
     vec3 FragPos = texture(gPosition, vTexCoords).rgb;
     vec3 Normal = texture(gNormal, vTexCoords).rgb;
     vec3 Diffuse = texture(gAlbedoSpec, vTexCoords).rgb;
-    float AmbientOcclusion = texture(ssao, vTexCoords).r;
+    float AmbientOcclusion = 0.0f;
+    if(use_ssao == true){
+        AmbientOcclusion = texture(ssao, vTexCoords).r;
+    }
 
     // blinn-phong (in view-space)
-    vec3 ambient = vec3(0.3 * Diffuse * AmbientOcclusion); // here we add occlusion factor
+    vec3 ambient;
+    if(use_ssao == true){
+        ambient = vec3(0.3 * Diffuse * AmbientOcclusion); // here we add occlusion factor
+    }
+    else{
+        ambient = vec3(0.3 * Diffuse); // here we add occlusion factor
+    }
     vec3 lighting  = ambient;
     vec3 viewDir  = normalize(-FragPos); // viewpos is (0.0.0) in view-space
     // diffuse

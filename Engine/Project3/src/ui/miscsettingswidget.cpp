@@ -20,6 +20,7 @@ MiscSettingsWidget::MiscSettingsWidget(QWidget *parent) :
     connect(ui->checkBoxLightSources, SIGNAL(clicked()), this, SLOT(onVisualHintChanged()));
     connect(ui->checkBoxSelectionOutline, SIGNAL(clicked()), this, SLOT(onSelectionOutlineClicked()));
     connect(ui->checkBoxBloom, SIGNAL(clicked()), this, SLOT(onBloomClicked()));
+    connect(ui->checkBoxSSAO, SIGNAL(clicked()), this, SLOT(onSSAOClicked()));
 
 }
 
@@ -71,6 +72,11 @@ void MiscSettingsWidget::onSelectionOutlineClicked(){
 
 void MiscSettingsWidget::onBloomClicked(){
     miscSettings->use_bloom = ui->checkBoxBloom->isChecked();
+    emit settingsChanged();
+}
+
+void MiscSettingsWidget::onSSAOClicked(){
+    miscSettings->use_ssao = ui->checkBoxSSAO->isChecked();
     emit settingsChanged();
 }
 

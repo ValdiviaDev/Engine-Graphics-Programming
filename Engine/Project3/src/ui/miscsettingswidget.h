@@ -28,6 +28,7 @@ public slots:
     void onGridCheckBoxClicked();
     void onSelectionOutlineClicked();
     void onBloomClicked();
+    void onSSAOClicked();
     void onVisualHintChanged();
 
 private:
