@@ -19,6 +19,8 @@ MiscSettingsWidget::MiscSettingsWidget(QWidget *parent) :
     connect(ui->checkBoxGrid, SIGNAL(clicked()), this, SLOT(onGridCheckBoxClicked()));
     connect(ui->checkBoxLightSources, SIGNAL(clicked()), this, SLOT(onVisualHintChanged()));
     connect(ui->checkBoxSelectionOutline, SIGNAL(clicked()), this, SLOT(onSelectionOutlineClicked()));
+    connect(ui->checkBoxBloom, SIGNAL(clicked()), this, SLOT(onBloomClicked()));
+
 }
 
 MiscSettingsWidget::~MiscSettingsWidget()
@@ -64,6 +66,11 @@ void MiscSettingsWidget::onGridCheckBoxClicked(){
 
 void MiscSettingsWidget::onSelectionOutlineClicked(){
     miscSettings->show_selection_outline = ui->checkBoxSelectionOutline->isChecked();
+    emit settingsChanged();
+}
+
+void MiscSettingsWidget::onBloomClicked(){
+    miscSettings->use_bloom = ui->checkBoxBloom->isChecked();
     emit settingsChanged();
 }
 

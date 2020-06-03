@@ -390,7 +390,9 @@ void DeferredRenderer::render(Camera *camera)
     if(miscSettings->show_grid){
         passGrid(camera);
     }
-    passBloom();
+    if(miscSettings->use_bloom){
+        passBloom();
+    }
 
     fbo->release();
 

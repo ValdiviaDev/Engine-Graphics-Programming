@@ -27,6 +27,7 @@ public slots:
     void onBackgroundColorClicked();
     void onGridCheckBoxClicked();
     void onSelectionOutlineClicked();
+    void onBloomClicked();
     void onVisualHintChanged();
 
 private:

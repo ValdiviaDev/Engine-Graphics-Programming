@@ -12,6 +12,7 @@ public:
     QColor backgroundColor;
     bool show_grid = true;
     bool show_selection_outline = true;
+    bool use_bloom = true;
     bool renderLightSources = true;
 };
 
