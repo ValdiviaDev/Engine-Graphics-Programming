@@ -384,9 +384,12 @@ void DeferredRenderer::render(Camera *camera)
     passBackground(camera);
     passMeshes(camera);
     passLights(camera->viewMatrix);
-    passOutline();
-    passGrid(camera);
-    //passBackground(camera);
+    if(miscSettings->show_selection_outline){
+        passOutline();
+    }
+    if(miscSettings->show_grid){
+        passGrid(camera);
+    }
     passBloom();
 
     fbo->release();

@@ -16,9 +16,9 @@ MiscSettingsWidget::MiscSettingsWidget(QWidget *parent) :
     connect(ui->spinCameraSpeed, SIGNAL(valueChanged(double)), this, SLOT(onCameraSpeedChanged(double)));
     connect(ui->spinFovY, SIGNAL(valueChanged(double)), this, SLOT(onCameraFovYChanged(double)));
     connect(ui->buttonBackgroundColor, SIGNAL(clicked()), this, SLOT(onBackgroundColorClicked()));
-    connect(ui->checkBoxGrid, SIGNAL(clicked()), this, SLOT(onVisualHintChanged()));
+    connect(ui->checkBoxGrid, SIGNAL(clicked()), this, SLOT(onGridCheckBoxClicked()));
     connect(ui->checkBoxLightSources, SIGNAL(clicked()), this, SLOT(onVisualHintChanged()));
-    connect(ui->checkBoxSelectionOutline, SIGNAL(clicked()), this, SLOT(onVisualHintChanged()));
+    connect(ui->checkBoxSelectionOutline, SIGNAL(clicked()), this, SLOT(onSelectionOutlineClicked()));
 }
 
 MiscSettingsWidget::~MiscSettingsWidget()
@@ -55,6 +55,16 @@ void MiscSettingsWidget::onBackgroundColorClicked()
         miscSettings->backgroundColor = color;
         emit settingsChanged();
     }
+}
+
+void MiscSettingsWidget::onGridCheckBoxClicked(){
+    miscSettings->show_grid = ui->checkBoxGrid->isChecked();
+    emit settingsChanged();
+}
+
+void MiscSettingsWidget::onSelectionOutlineClicked(){
+    miscSettings->show_selection_outline = ui->checkBoxSelectionOutline->isChecked();
+    emit settingsChanged();
 }
 
 void MiscSettingsWidget::onVisualHintChanged()

@@ -10,6 +10,8 @@ public:
 
     // TODO: Maybe not the best place for this stuff...
     QColor backgroundColor;
+    bool show_grid = true;
+    bool show_selection_outline = true;
     bool renderLightSources = true;
 };
 

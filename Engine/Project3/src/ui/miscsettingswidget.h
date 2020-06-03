@@ -25,6 +25,8 @@ public slots:
     void onCameraFovYChanged(double speed);
     void onMaxSubmeshesChanged(int n);
     void onBackgroundColorClicked();
+    void onGridCheckBoxClicked();
+    void onSelectionOutlineClicked();
     void onVisualHintChanged();
 
 private:
