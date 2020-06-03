@@ -387,7 +387,7 @@ void DeferredRenderer::render(Camera *camera)
     passOutline();
     passGrid(camera);
     //passBackground(camera);
-    //passBloom();
+    passBloom();
 
     fbo->release();
 
@@ -675,6 +675,7 @@ void DeferredRenderer::passBloom2(FramebufferObject *current_fbo, GLenum colorAt
         resourceManager->quad->submeshes[0]->draw();
         program.release();
     }
+    glDisable(GL_BLEND);
     current_fbo->release();
 }
 
