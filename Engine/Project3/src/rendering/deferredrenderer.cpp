@@ -395,7 +395,7 @@ void DeferredRenderer::render(Camera *camera)
     glDrawBuffer(0);
 
     // Passes
-    passBackground(camera);
+    //passBackground(camera);
     passMeshes(camera);
     if(miscSettings->use_ssao){
        passSSAO();
@@ -408,8 +408,9 @@ void DeferredRenderer::render(Camera *camera)
         passGrid(camera);
     }
     if(miscSettings->use_bloom){
-        passBloom();
+       // passBloom();
     }
+    passBackground(camera);
 
     fbo->release();
 
@@ -530,7 +531,7 @@ bool DeferredRenderer::passGrid(Camera *camera)
 
          program.release();
      }
-    glDisable(GL_DEPTH_TEST);
+    //glDisable(GL_DEPTH_TEST);
     glDisable(GL_BLEND);
     return true;
 }
@@ -541,7 +542,13 @@ void DeferredRenderer::passBackground(Camera *camera)
 
     GLenum draw_buffers = GL_COLOR_ATTACHMENT3;
     glDrawBuffer(draw_buffers);
-    gl->glDisable(GL_DEPTH_TEST);
+
+    OpenGLState glState;
+    glState.depthTest = true;
+    glState.depthFunc = GL_LEQUAL;
+    glState.apply();
+
+    //gl->glDisable(GL_DEPTH_TEST);
     if (program.bind())
     {
         QVector4D viewport_parameters = camera->getLeftRightBottomTop();
@@ -558,7 +565,7 @@ void DeferredRenderer::passBackground(Camera *camera)
 
         program.release();
     }
-    gl->glEnable(GL_DEPTH_TEST);
+    //gl->glEnable(GL_DEPTH_TEST);
 }
 
 void DeferredRenderer::passOutline()
