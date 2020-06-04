@@ -13,7 +13,7 @@ uniform int lightType;
 uniform vec3 lightPosition;
 uniform vec3 lightDirection;
 uniform vec3 lightColor;
-//uniform vec3 lightIntensity;
+uniform float lightIntensity;
 
 in vec2 vTexCoords;
 
@@ -42,6 +42,9 @@ void main(void)
     vec3 viewDir  = normalize(-FragPos); // viewpos is (0.0.0) in view-space
     // diffuse
     vec3 lightDir = normalize(lightPosition - FragPos);
+    //if(lightType == 1){
+    //    lightDir = lightDirection;
+    //}
     vec3 diffuse = max(dot(Normal, lightDir), 0.0) * Diffuse * lightColor;
     // specular
     vec3 halfwayDir = normalize(lightDir + viewDir);
@@ -49,7 +52,7 @@ void main(void)
     vec3 specular = lightColor * spec;
     // attenuation
     float dist = length(lightPosition - FragPos);
-    //float attenuation = 1.0 / (1.0 + light.Linear * dist + light.Quadratic * dist * dist);
+    //float attenuation = lightIntensity / (lightIntensity + light.Linear * dist + light.Quadratic * dist * dist);
     //diffuse  *= attenuation;
     //specular *= attenuation;
     lighting += diffuse + specular;

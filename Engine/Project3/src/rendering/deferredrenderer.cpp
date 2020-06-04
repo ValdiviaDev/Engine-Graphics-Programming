@@ -69,6 +69,7 @@ void DeferredRenderer::passLights(const QMatrix4x4 &viewMatrix)
            program.setUniformValue("lightDirection", QVector3D(viewMatrix * entity->transform->matrix() * QVector4D(0.0, 1.0, 0.0, 0.0)));
            QVector3D color(light->color.redF(), light->color.greenF(), light->color.blueF());
            program.setUniformValue("lightColor", color * light->intensity);
+           program.setUniformValue("lightIntensity", light->intensity);
            resourceManager->quad->submeshes[0]->draw();
            lights_count++;
        }
