@@ -419,11 +419,11 @@ void DeferredRenderer::render(Camera *camera)
     if(miscSettings->show_selection_outline){
         passOutline();
     }
-    if(miscSettings->show_grid){
-        passGrid(camera);
-    }
     if(miscSettings->use_bloom){
         passBloom();
+    }
+    if(miscSettings->show_grid){
+        passGrid(camera);
     }
     passBackground(camera);
 
@@ -692,7 +692,7 @@ void DeferredRenderer::passBloom(){
     passBlur(fboBloom4, QVector2D(w/16,h/16), GL_COLOR_ATTACHMENT0, rtBloomH, LOD(3), vertical);
     passBlur(fboBloom5, QVector2D(w/32,h/32), GL_COLOR_ATTACHMENT0, rtBloomH, LOD(4), vertical);
 
-   // passBloom2(fbo, GL_COLOR_ATTACHMENT3, rtBright, 4);
+    passBloom2(fbo, GL_COLOR_ATTACHMENT3, rtBright, 4);
 
 
 #undef LOD
@@ -710,7 +710,6 @@ void DeferredRenderer::passBloom2(FramebufferObject *current_fbo, GLenum colorAt
     glState.blendFuncDst = GL_ONE;
     glState.blendFuncSrc = GL_NONE;
     glState.apply();
-
     QOpenGLShaderProgram &program = bloomProgram->program;
 
     if(program.bind()){
@@ -722,8 +721,7 @@ void DeferredRenderer::passBloom2(FramebufferObject *current_fbo, GLenum colorAt
         resourceManager->quad->submeshes[0]->draw();
         program.release();
     }
-    glDisable(GL_BLEND);
-    current_fbo->release();
+    //current_fbo->release();
 }
 
 float lerp(float a, float b, float f)
