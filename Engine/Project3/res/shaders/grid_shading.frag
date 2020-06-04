@@ -50,6 +50,9 @@ void main(void)
         outColor = vec4(grid(hitWorldSpace, 1.0) * 0.5);
         outColor += vec4(grid(hitWorldSpace, 10.0) * 0.5);
         outColor += vec4(grid(hitWorldSpace, 100.0) * 0.5);
+        vec4 hitClip = projectionMatrix * viewMatrix * vec4(hitWorldSpace, 1.0);
+        float ndcDepth = hitClip.z / hitClip.w;
+        gl_FragDepth = ((gl_DepthRange.diff * ndcDepth) * gl_DepthRange.near + gl_DepthRange.far) / 2.0;
     }
     else
     {
