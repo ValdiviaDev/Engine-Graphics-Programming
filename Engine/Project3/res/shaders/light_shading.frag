@@ -14,6 +14,7 @@ uniform vec3 lightPosition;
 uniform vec3 lightDirection;
 uniform vec3 lightColor;
 uniform float lightIntensity;
+uniform float lightRange;
 
 in vec2 vTexCoords;
 
@@ -53,8 +54,9 @@ void main(void)
     // attenuation
     float dist = length(lightPosition - FragPos);
     //float attenuation = lightIntensity / (lightIntensity + light.Linear * dist + light.Quadratic * dist * dist);
-    //diffuse  *= attenuation;
-    //specular *= attenuation;
+    float attenuation = clamp( lightRange / dist, 0.0, 1.0);
+    diffuse  *= attenuation;
+    specular *= attenuation;
     lighting += diffuse + specular;
 
     outColor = vec4(lighting, 1.0);
