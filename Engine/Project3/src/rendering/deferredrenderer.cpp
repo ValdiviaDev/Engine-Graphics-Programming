@@ -254,26 +254,26 @@ void DeferredRenderer::initializeBloom(int width, int height){
     fboBloom1->release();
 
     fboBloom2->bind();
-    fboBloom2->addColorAttachment(0,rtBright,0);
-    fboBloom2->addColorAttachment(1,rtBloomH,0);
+    fboBloom2->addColorAttachment(0,rtBright,1);
+    fboBloom2->addColorAttachment(1,rtBloomH,1);
     fboBloom2->checkStatus();
     fboBloom2->release();
 
     fboBloom3->bind();
-    fboBloom3->addColorAttachment(0,rtBright,0);
-    fboBloom3->addColorAttachment(1,rtBloomH,0);
+    fboBloom3->addColorAttachment(0,rtBright,2);
+    fboBloom3->addColorAttachment(1,rtBloomH,2);
     fboBloom3->checkStatus();
     fboBloom3->release();
 
     fboBloom4->bind();
-    fboBloom4->addColorAttachment(0,rtBright,0);
-    fboBloom4->addColorAttachment(1,rtBloomH,0);
+    fboBloom4->addColorAttachment(0,rtBright,3);
+    fboBloom4->addColorAttachment(1,rtBloomH,3);
     fboBloom4->checkStatus();
     fboBloom4->release();
 
     fboBloom5->bind();
-    fboBloom5->addColorAttachment(0,rtBright,0);
-    fboBloom5->addColorAttachment(1,rtBloomH,0);
+    fboBloom5->addColorAttachment(0,rtBright,4);
+    fboBloom5->addColorAttachment(1,rtBloomH,4);
     fboBloom5->checkStatus();
     fboBloom5->release();
 
