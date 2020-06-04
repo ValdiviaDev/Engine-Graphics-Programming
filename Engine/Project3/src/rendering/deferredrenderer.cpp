@@ -736,7 +736,7 @@ void DeferredRenderer::initializeSSAO(){
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
     ssaoFBO->addColorAttachment(0,ssaoColorBuffer,0);
-    ssaoFBO->addColorAttachment(1, ssaoNoiseTexture, 0);
+    //ssaoFBO->addColorAttachment(1, ssaoNoiseTexture, 0);
     ssaoFBO->checkStatus();
     ssaoFBO->release();
 
