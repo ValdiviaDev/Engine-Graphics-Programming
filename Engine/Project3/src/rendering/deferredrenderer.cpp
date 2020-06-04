@@ -102,6 +102,7 @@ DeferredRenderer::DeferredRenderer() :
     addTexture("Position texture");
     addTexture("Normal texture");
     addTexture("Albedo");
+    addTexture("Mouse Picking");
 }
 
 DeferredRenderer::~DeferredRenderer()
@@ -114,6 +115,7 @@ DeferredRenderer::~DeferredRenderer()
     delete fboBloom5;
     delete ssaoFBO;
     delete ssaoBlurFBO;
+    delete mousePickingFBO;
 }
 
 void DeferredRenderer::initialize()
@@ -183,6 +185,12 @@ void DeferredRenderer::initialize()
     ssaoBlurProgram->fragmentShaderFilename = "res/shaders/ssao_blur_shading.frag";
     ssaoBlurProgram->includeForSerialization = false;
 
+    mousePickingProgram = resourceManager->createShaderProgram();
+    mousePickingProgram->name = "Mouse Picking shading";
+    mousePickingProgram->vertexShaderFilename = "res/shaders/mouse_picking_shading.vert";
+    mousePickingProgram->fragmentShaderFilename = "res/shaders/mouse_picking_shading.frag";
+    mousePickingProgram->includeForSerialization = false;
+
     blitProgram = resourceManager->createShaderProgram();
     blitProgram->name = "Blit";
     blitProgram->vertexShaderFilename = "res/shaders/blit.vert";
@@ -207,6 +215,8 @@ void DeferredRenderer::initialize()
     ssaoFBO->create();
     ssaoBlurFBO = new FramebufferObject;
     ssaoBlurFBO->create();
+    mousePickingFBO = new FramebufferObject;
+    mousePickingFBO->create();
 }
 
 void DeferredRenderer::finalize()
@@ -387,6 +397,54 @@ void DeferredRenderer::resize(int w, int h)
 
     initializeBloom(w, h);
     initializeSSAO();
+    initializeMousePicking();
+
+}
+
+void DeferredRenderer::initializeMousePicking(){
+    if (mousePickingColor == 0) gl->glDeleteTextures(1, &mousePickingColor);
+    gl->glGenTextures(1, &mousePickingColor);
+    gl->glBindTexture(GL_TEXTURE_2D, mousePickingColor);
+    gl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    gl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    gl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+    gl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    gl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    gl->glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, viewportWidth, viewportHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+
+    mousePickingFBO->bind();
+    mousePickingFBO->addColorAttachment(0, mousePickingColor);
+    gl->glDrawBuffer(GL_COLOR_ATTACHMENT0);
+    mousePickingFBO->checkStatus();
+    mousePickingFBO->release();
+
+}
+
+void DeferredRenderer::passMousePicking(){
+    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+    mousePickingFBO->bind();
+
+    QOpenGLShaderProgram &program = mousePickingProgram->program;
+
+    GLenum draw_buffers = GL_COLOR_ATTACHMENT0;
+    gl->glDrawBuffer(draw_buffers);
+
+    if(program.bind()){
+        int code = 1;
+        for(auto entity : scene->entities){
+            if (entity->active){
+                    program.setUniformValue("code", code);
+                    code++;
+            }
+        }
+        resourceManager->quad->submeshes[0]->draw();
+        program.release();
+    }
+
+    mousePickingFBO->release();
+}
+
+void DeferredRenderer::processMousePickong(){
 
 }
 
@@ -428,6 +486,8 @@ void DeferredRenderer::render(Camera *camera)
     passBackground(camera);
 
     fbo->release();
+
+    passMousePicking();
 
     gl->glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
@@ -874,6 +934,9 @@ void DeferredRenderer::passBlit()
         }
         else if(shownTexture() == "Albedo"){
             gl->glBindTexture(GL_TEXTURE_2D, albedoColor);
+        }
+        else if(shownTexture() == "Mouse Picking"){
+            gl->glBindTexture(GL_TEXTURE_2D, mousePickingColor);
         }
 
         resourceManager->quad->submeshes[0]->draw();

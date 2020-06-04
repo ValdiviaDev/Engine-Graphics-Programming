@@ -7,6 +7,8 @@ Entity::Entity() :
     for (int i = 0; i < MAX_COMPONENTS; ++i)
         components[i] = nullptr;
     transform = new Transform;
+    scene->last_entitie_code++;
+    code = scene->last_entitie_code;
 }
 
 Entity::~Entity()

@@ -222,6 +222,8 @@ DISTFILES += \
     res/shaders/grid_shading.vert \
     res/shaders/light_shading.frag \
     res/shaders/light_shading.vert \
+    res/shaders/mouse_picking_shading.frag \
+    res/shaders/mouse_picking_shading.vert \
     res/shaders/outline_shading.frag \
     res/shaders/outline_shading.vert \
     res/shaders/ssao_blur_shading.frag \

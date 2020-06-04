@@ -40,6 +40,10 @@ private:
     void initializeSSAOBlur();
     void passSSAOBlur();
 
+    void initializeMousePicking();
+    void passMousePicking();
+    void processMousePickong();
+
     // Shaders
     ShaderProgram *deferredProgram = nullptr;
     ShaderProgram *lightProgram = nullptr;
@@ -52,6 +56,7 @@ private:
     ShaderProgram *bloomProgram = nullptr;
     ShaderProgram *ssaoProgram = nullptr;
     ShaderProgram *ssaoBlurProgram = nullptr;
+    ShaderProgram *mousePickingProgram = nullptr;
 
     GLuint fboColor = 0;
     GLuint albedoColor = 0;
@@ -62,6 +67,7 @@ private:
     GLuint ssaoNoiseTexture = 0;
     GLuint ssaoColorBuffer = 0;
     GLuint ssaoBlurColor = 0;
+    GLuint mousePickingColor = 0;
 
     GLuint rtBright; //Brightest pixel and vertical blur
     GLuint rtBloomH; //Horizontal Blur
@@ -76,6 +82,8 @@ private:
 
     FramebufferObject *ssaoFBO = nullptr;
     FramebufferObject *ssaoBlurFBO = nullptr;
+
+    FramebufferObject *mousePickingFBO = nullptr;
 
     int viewportWidth = 0;
     int viewportHeight = 0;
