@@ -252,30 +252,45 @@ void DeferredRenderer::initializeBloom(int width, int height){
     fboBloom1->bind();
     fboBloom1->addColorAttachment(0,rtBright,0);
     fboBloom1->addColorAttachment(1,rtBloomH,0);
+    unsigned int atachment[2] = { GL_COLOR_ATTACHMENT0,
+                                  GL_COLOR_ATTACHMENT1};
+    gl->glDrawBuffers(2, atachment);
     fboBloom1->checkStatus();
     fboBloom1->release();
 
     fboBloom2->bind();
     fboBloom2->addColorAttachment(0,rtBright,1);
     fboBloom2->addColorAttachment(1,rtBloomH,1);
+    unsigned int atachment2[2] = { GL_COLOR_ATTACHMENT0,
+                                  GL_COLOR_ATTACHMENT1};
+    gl->glDrawBuffers(2, atachment2);
     fboBloom2->checkStatus();
     fboBloom2->release();
 
     fboBloom3->bind();
     fboBloom3->addColorAttachment(0,rtBright,2);
     fboBloom3->addColorAttachment(1,rtBloomH,2);
+    unsigned int atachment3[2] = { GL_COLOR_ATTACHMENT0,
+                                  GL_COLOR_ATTACHMENT1};
+    gl->glDrawBuffers(2, atachment3);
     fboBloom3->checkStatus();
     fboBloom3->release();
 
     fboBloom4->bind();
     fboBloom4->addColorAttachment(0,rtBright,3);
     fboBloom4->addColorAttachment(1,rtBloomH,3);
+    unsigned int atachment4[2] = { GL_COLOR_ATTACHMENT0,
+                                  GL_COLOR_ATTACHMENT1};
+    gl->glDrawBuffers(2, atachment4);
     fboBloom4->checkStatus();
     fboBloom4->release();
 
     fboBloom5->bind();
     fboBloom5->addColorAttachment(0,rtBright,4);
     fboBloom5->addColorAttachment(1,rtBloomH,4);
+    unsigned int atachment5[2] = { GL_COLOR_ATTACHMENT0,
+                                  GL_COLOR_ATTACHMENT1};
+    gl->glDrawBuffers(2, atachment5);
     fboBloom5->checkStatus();
     fboBloom5->release();
 
@@ -408,7 +423,7 @@ void DeferredRenderer::render(Camera *camera)
         passGrid(camera);
     }
     if(miscSettings->use_bloom){
-       // passBloom();
+        passBloom();
     }
     passBackground(camera);
 
@@ -605,10 +620,10 @@ void DeferredRenderer::passBlitBrightPixel(FramebufferObject *current_fbo, const
     QOpenGLShaderProgram &program = blitBrightestPixelProgram->program;
 
     if(program.bind()){
+        program.setUniformValue(program.uniformLocation("colorTexture"), 0);
         gl->glActiveTexture(GL_TEXTURE0);
-        gl->glBindTexture(GL_TEXTURE_2D, inputTexture);
+        gl->glBindTexture(GL_TEXTURE_2D, fboColor);
         gl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        program.setUniformValue("colorTexture", 0);
 
         resourceManager->quad->submeshes[0]->draw();
 
@@ -616,6 +631,7 @@ void DeferredRenderer::passBlitBrightPixel(FramebufferObject *current_fbo, const
 
         program.release();
     }
+    current_fbo->release();
 
 }
 
@@ -632,9 +648,9 @@ void DeferredRenderer::passBlur(FramebufferObject *pfbo, const QVector2D &viewpo
     QOpenGLShaderProgram &program = blur->program;
 
     if(program.bind()){
+        program.setUniformValue(program.uniformLocation("colorMap"), 0);
         gl->glActiveTexture(GL_TEXTURE0);
         gl->glBindTexture(GL_TEXTURE_2D, inputTexture);
-        program.setUniformValue("colorMap", 0);
         program.setUniformValue("inputLod", inputLod);
         program.setUniformValue("direction", direction);
 
@@ -643,6 +659,8 @@ void DeferredRenderer::passBlur(FramebufferObject *pfbo, const QVector2D &viewpo
     }
 
     pfbo->release();
+    fbo->bind();
+    gl->glViewport(0,0, viewportWidth, viewportHeight);
 
 }
 
@@ -653,7 +671,7 @@ void DeferredRenderer::passBloom(){
 
     const float w = viewportWidth;
     const float h = viewportHeight;
-
+    fbo->release();
     //HorizontalBlur
     float threshold = 1.0;
     passBlitBrightPixel(fboBloom1, QVector2D(w/2,h/2), GL_COLOR_ATTACHMENT0, fboColor, LOD(0), threshold);
@@ -674,7 +692,7 @@ void DeferredRenderer::passBloom(){
     passBlur(fboBloom4, QVector2D(w/16,h/16), GL_COLOR_ATTACHMENT0, rtBloomH, LOD(3), vertical);
     passBlur(fboBloom5, QVector2D(w/32,h/32), GL_COLOR_ATTACHMENT0, rtBloomH, LOD(4), vertical);
 
-    passBloom2(fbo, GL_COLOR_ATTACHMENT3, rtBright, 4);
+   // passBloom2(fbo, GL_COLOR_ATTACHMENT3, rtBright, 4);
 
 
 #undef LOD
