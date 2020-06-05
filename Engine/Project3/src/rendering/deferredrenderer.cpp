@@ -799,12 +799,15 @@ void DeferredRenderer::passBloom2(FramebufferObject *current_fbo, GLenum colorAt
 
     gl->glViewport(0,0,viewportWidth,viewportHeight);
 
-    OpenGLState glState;
-    glState.depthTest = false;
-    glState.blending = true;
-    glState.blendFuncDst = GL_ONE;
-    glState.blendFuncSrc = GL_NONE;
-    glState.apply();
+    //OpenGLState glState;
+    //glState.depthTest = false;
+    //glState.blending = true;
+    //glState.blendFuncDst = GL_ONE;
+    //glState.blendFuncSrc = GL_NONE;
+    //glState.apply();
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_ONE, GL_ONE);
+    glDepthMask(GL_FALSE);
     QOpenGLShaderProgram &program = bloomProgram->program;
 
     if(program.bind()){
@@ -817,6 +820,7 @@ void DeferredRenderer::passBloom2(FramebufferObject *current_fbo, GLenum colorAt
         program.release();
     }
     //current_fbo->release();
+    glDepthMask(GL_TRUE);
 }
 
 float lerp(float a, float b, float f)
