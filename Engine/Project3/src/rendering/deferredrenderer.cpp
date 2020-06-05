@@ -410,7 +410,7 @@ void DeferredRenderer::initializeMousePicking(){
     gl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
     gl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     gl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    gl->glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, viewportWidth, viewportHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+    gl->glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB32F, viewportWidth, viewportHeight, 0, GL_RGB, GL_FLOAT, nullptr);
 
     mousePickingFBO->bind();
     mousePickingFBO->addColorAttachment(0, mousePickingColor);
@@ -421,8 +421,11 @@ void DeferredRenderer::initializeMousePicking(){
 }
 
 void DeferredRenderer::passMousePicking(){
-    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     mousePickingFBO->bind();
+
+    gl->glClearDepth(1.0);
+    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+    gl->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     QOpenGLShaderProgram &program = mousePickingProgram->program;
 
@@ -430,14 +433,24 @@ void DeferredRenderer::passMousePicking(){
     gl->glDrawBuffer(draw_buffers);
 
     if(program.bind()){
+        QVector<MeshRenderer*> meshRenderers;
         int code = 1;
         for(auto entity : scene->entities){
-            if (entity->active){
+            if (entity->active && entity->meshRenderer != nullptr){
                     program.setUniformValue("code", code);
+                    program.setUniformValue("projectionMatrix", camera->projectionMatrix);
+                    QMatrix4x4 worldMatrix = entity->meshRenderer->entity->transform->matrix();
+                    QMatrix4x4 worldViewMatrix = camera->viewMatrix * worldMatrix;
+
+                    program.setUniformValue("worldViewMatrix", worldViewMatrix);
+                    for (auto submesh : entity->meshRenderer->mesh->submeshes)
+                    {
+                        submesh->draw();
+                    }
                     code++;
             }
         }
-        resourceManager->quad->submeshes[0]->draw();
+        //resourceManager->quad->submeshes[0]->draw();
         program.release();
     }
 
