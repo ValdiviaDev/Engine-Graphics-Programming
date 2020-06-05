@@ -42,7 +42,7 @@ private:
 
     void initializeMousePicking();
     void passMousePicking();
-    void processMousePickong();
+    void processMousePicking();
 
     // Shaders
     ShaderProgram *deferredProgram = nullptr;

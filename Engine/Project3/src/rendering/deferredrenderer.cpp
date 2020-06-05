@@ -424,7 +424,7 @@ void DeferredRenderer::passMousePicking(){
     mousePickingFBO->bind();
 
     gl->glClearDepth(1.0);
-    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     gl->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     QOpenGLShaderProgram &program = mousePickingProgram->program;
@@ -434,10 +434,9 @@ void DeferredRenderer::passMousePicking(){
 
     if(program.bind()){
         QVector<MeshRenderer*> meshRenderers;
-        int code = 1;
         for(auto entity : scene->entities){
             if (entity->active && entity->meshRenderer != nullptr){
-                    program.setUniformValue("code", code);
+                    program.setUniformValue("code", float(entity->code));
                     program.setUniformValue("projectionMatrix", camera->projectionMatrix);
                     QMatrix4x4 worldMatrix = entity->meshRenderer->entity->transform->matrix();
                     QMatrix4x4 worldViewMatrix = camera->viewMatrix * worldMatrix;
@@ -447,7 +446,6 @@ void DeferredRenderer::passMousePicking(){
                     {
                         submesh->draw();
                     }
-                    code++;
             }
         }
         //resourceManager->quad->submeshes[0]->draw();
@@ -457,8 +455,28 @@ void DeferredRenderer::passMousePicking(){
     mousePickingFBO->release();
 }
 
-void DeferredRenderer::processMousePickong(){
+void DeferredRenderer::processMousePicking(){
+    mousePickingFBO->bind();
 
+    GLfloat* pixels = (GLfloat*)malloc(sizeof(GLfloat)*3);
+    glReadPixels(input->mousex, camera->viewportHeight-input->mousey,1,1,GL_RGB,GL_FLOAT,pixels);
+    mousePickingFBO->release();
+
+    for(auto entity : scene->entities){
+        if (entity->active && entity->meshRenderer != nullptr){
+            float value = qAbs(entity->code - pixels[0]);
+            if(value < 0.01){
+                camera->selected_entity->is_selected = false;
+                camera->selected_entity = nullptr;
+                camera->selected_entity = entity;
+                entity->is_selected = true;
+                input->has2select = false;
+                selection->select(entity);
+                break;
+            }
+        }
+    }
+    input->has2select = false;
 }
 
 void DeferredRenderer::render(Camera *camera)
@@ -501,6 +519,10 @@ void DeferredRenderer::render(Camera *camera)
     fbo->release();
 
     passMousePicking();
+
+    if(input->has2select){
+        processMousePicking();
+    }
 
     gl->glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 

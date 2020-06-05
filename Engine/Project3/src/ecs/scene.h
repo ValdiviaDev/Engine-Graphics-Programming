@@ -30,7 +30,6 @@ public:
     void write(QJsonObject &json);
 
     QVector<Entity*> entities;
-    int last_entitie_code = 0;
 };
 
 

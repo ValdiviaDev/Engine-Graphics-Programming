@@ -1,5 +1,6 @@
 #include "entity.h"
 #include "globals.h"
+#include <QRandomGenerator64>
 
 Entity::Entity() :
     name("Entity")
@@ -7,8 +8,9 @@ Entity::Entity() :
     for (int i = 0; i < MAX_COMPONENTS; ++i)
         components[i] = nullptr;
     transform = new Transform;
-    scene->last_entitie_code++;
-    code = scene->last_entitie_code;
+    QRandomGenerator generator = QRandomGenerator64();
+    generator.seed(time(NULL));
+    code = generator.generateDouble();
 }
 
 Entity::~Entity()

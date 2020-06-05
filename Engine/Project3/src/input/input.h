@@ -40,6 +40,8 @@ public:
     int mousey_prev = 0;
 
     float rotation_speed = 0.5f;
+
+    bool has2select = false;
 };
 
 #endif // INPUT_H

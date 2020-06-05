@@ -36,7 +36,7 @@ public:
 
     bool active = true;
     bool is_selected = false;
-    int code;
+    double code;
 };
 
 #endif // ENTITY_H

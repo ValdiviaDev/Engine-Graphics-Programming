@@ -252,7 +252,7 @@ bool Interaction::mousePicking(){
    //Throw a ray from the screen to the world
    camera->screenPointToWorldRay(input->mousex, input->mousey);
 
-
+    input->has2select = true;
 
    nextState = State::Idle;
    return true;
