@@ -43,9 +43,9 @@ void main(void)
     vec3 viewDir  = normalize(-FragPos); // viewpos is (0.0.0) in view-space
     // diffuse
     vec3 lightDir = normalize(lightPosition - FragPos);
-    //if(lightType == 1){
-    //    lightDir = lightDirection;
-    //}
+    if(lightType == 1){
+        lightDir = normalize(lightDirection);
+    }
     vec3 diffuse = max(dot(Normal, lightDir), 0.0) * Diffuse * lightColor;
     // specular
     vec3 halfwayDir = normalize(lightDir + viewDir);
